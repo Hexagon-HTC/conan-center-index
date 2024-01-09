@@ -132,7 +132,8 @@ class GtsamConan(ConanFile):
             self.options["onetbb"].tbbmalloc = True
         if self.options.allow_deprecated_since_V4 != "deprecated":
             self.output.warn("'allow_deprecated_since_V4' option is deprecated. Use 'allow_deprecated' instead.")
-
+        if self.settings.os == "Windows":
+            self.settings.rm_safe("compiler.cppstd")
 
     def layout(self):
         cmake_layout(self, src_folder="src")
@@ -273,6 +274,9 @@ class GtsamConan(ConanFile):
 
         tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
         tc.variables["Boost_NO_SYSTEM_PATHS"] = True
+
+        if not self.settings.compiler.cppstd:
+            self._cmake.definitions["CMAKE_CXX_STANDARD"] = "14"
         tc.generate()
 
         deps = CMakeDeps(self)
