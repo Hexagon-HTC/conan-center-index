@@ -153,7 +153,6 @@ class GTestConan(ConanFile):
 
         # gtest
         self.cpp_info.components["libgtest"].set_property("cmake_target_name", "GTest::gtest")
-        self.cpp_info.components["libgtest"].set_property("cmake_target_aliases", ["GTest::GTest"])
         self.cpp_info.components["libgtest"].set_property("pkg_config_name", "gtest")
         self.cpp_info.components["libgtest"].libs = [f"gtest{self._postfix}"]
         if self.settings.os in ["Linux", "FreeBSD"]:
@@ -167,7 +166,6 @@ class GTestConan(ConanFile):
         # gtest_main
         if not self.options.no_main:
             self.cpp_info.components["gtest_main"].set_property("cmake_target_name", "GTest::gtest_main")
-            self.cpp_info.components["gtest_main"].set_property("cmake_target_aliases", ["GTest::Main"])
             self.cpp_info.components["gtest_main"].set_property("pkg_config_name", "gtest_main")
             self.cpp_info.components["gtest_main"].libs = [f"gtest_main{self._postfix}"]
             self.cpp_info.components["gtest_main"].requires = ["libgtest"]

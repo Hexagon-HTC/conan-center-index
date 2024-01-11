@@ -202,8 +202,6 @@ class CeressolverConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Ceres")
         self.cpp_info.set_property("cmake_target_name", "Ceres::ceres")
-        # see https://github.com/ceres-solver/ceres-solver/blob/2.2.0/cmake/CeresConfig.cmake.in#L334-L340
-        self.cpp_info.set_property("cmake_target_aliases", ["ceres"])
         self.cpp_info.set_property("cmake_build_modules", [self._module_variables_file_rel_path])
 
         libsuffix = ""
