@@ -63,7 +63,6 @@ class ZlibConan(ConanFile):
         tc.variables["INSTALL_INC_DIR"] = "include"
         # we can hide symbols only in static lib becasue zlib is not exporting api symbols for other configuration than msvc
         if not is_msvc(self) and not self.options.shared:
-            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + tc.variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
             tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + tc.variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
         tc.generate()
 
