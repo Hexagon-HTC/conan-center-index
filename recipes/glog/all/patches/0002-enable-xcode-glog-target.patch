@@ -1,0 +1,25 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 846b444..7a15e68 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -615,8 +615,20 @@ add_library (glogbase OBJECT
+   ${GLOG_SRCS}
+ )
+ 
++set_target_properties (glogbase PROPERTIES DEFINE_SYMBOL GOOGLE_GLOG_IS_A_DLL)
++
++# Some generators (such as Xcode) do not generate any output if the target does
++# not reference at least one source file.
++set (_glog_EMPTY_SOURCE ${glog_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/glog.cc)
++
++add_custom_command (
++  OUTPUT ${_glog_EMPTY_SOURCE}
++  COMMAND ${CMAKE_COMMAND} -E touch ${_glog_EMPTY_SOURCE}
++)
++
+ add_library (glog
+   $<TARGET_OBJECTS:glogbase>
++  ${_glog_EMPTY_SOURCE}
+ )
+ 
+ add_library (glog::glog ALIAS glog)
