@@ -1,0 +1,60 @@
+diff -urN a/libs/config/doc/macro_reference.qbk  b/libs/config/doc/macro_reference.qbk
+--- a/libs/config/doc/macro_reference.qbk
++++ b/libs/config/doc/macro_reference.qbk
+@@ -1664,6 +1664,15 @@
+ ['Deprecated. This macro is no longer necessary since BOOST_SYMBOL_EXPORT and BOOST_SYMBOL_IMPORT
+ are now supplied. It is provided to support legacy code.]
+ ]]
++[[`BOOST_DISABLE_EXPLICIT_SYMBOL_VISIBILITY`][
++Disables the effect of the BOOST_SYMBOL_EXPORT, BOOST_SYMBOL_IMPORT and BOOST_SYMBOL_VISIBLE macros, 
++in order to revert to the default compiler behaviour.
++Note that this option should never be used if Boost libraries are being linking against dynamically, 
++or if you are building a shared library that exposes Boost types in its public API. 
++It is however advisable when statically-linking against Boost to prevent Boost symbols from leaking from the binary: 
++for instance because you are building a plug-in for a software which may itself use Boost which could cause 
++ODR conflicts.
++]]
+ ]
+ 
+ Typical usage:
+diff -urN a/boost/config/detail/suffix.hpp b/boost/config/detail/suffix.hpp
+--- a/boost/config/detail/suffix.hpp
++++ b/boost/config/detail/suffix.hpp
+@@ -48,6 +48,23 @@
+ #endif
+ 
+ //
++// disable explicitly enforced visibility
++//
++#if defined(BOOST_DISABLE_EXPLICIT_SYMBOL_VISIBILITY)
++
++#undef BOOST_SYMBOL_EXPORT
++#define BOOST_SYMBOL_EXPORT
++
++#undef BOOST_SYMBOL_IMPORT
++#define BOOST_SYMBOL_IMPORT
++
++#undef BOOST_SYMBOL_VISIBLE
++#define BOOST_SYMBOL_VISIBLE
++
++#undef BOOST_HAS_DECLSPEC
++#endif
++
++//
+ // look for long long by looking for the appropriate macros in <limits.h>.
+ // Note that we use limits.h rather than climits for maximal portability,
+ // remember that since these just declare a bunch of macros, there should be
+diff -urN a/boost/winapi/config.hpp b/boost/winapi/config.hpp
+--- a/boost/winapi/config.hpp
++++ b/boost/winapi/config.hpp
+@@ -232,8 +232,8 @@
+ #define BOOST_WINAPI_IMPORT
+ #define BOOST_WINAPI_IMPORT_EXCEPT_WM
+ #else
+-#define BOOST_WINAPI_IMPORT BOOST_SYMBOL_IMPORT
+-#define BOOST_WINAPI_IMPORT_EXCEPT_WM BOOST_SYMBOL_IMPORT
++#define BOOST_WINAPI_IMPORT __declspec(dllimport)
++#define BOOST_WINAPI_IMPORT_EXCEPT_WM __declspec(dllimport)
+ #endif
+ 
+ #include <boost/config.hpp>

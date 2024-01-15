@@ -1035,6 +1035,17 @@ class BoostConan(ConanFile):
         flags.append(f"threading={'single' if not self.options.multithreading else 'multi'}")
         flags.append(f"visibility={self.options.visibility}")
 
+        if self.options.visibility == 'hidden' and not self.options.shared:
+            # below flag was added based on https://github.com/boostorg/config/commit/ea089019846500a154e51a1857cfb281c5036e87 commit
+            # but with additional fix. Setting this flag makes BOOST_SYMBOL_IMPORT to be defined but empty. Further, on Windows, this 
+            # flag is used to set BOOST_WINAPI_IMPORT and BOOST_WINAPI_IMPORT_EXCEPT_WM. Unfortunately this causes linker problem when 
+            # symbols doesn't have the same visibility as used in winapi. To fix this issue we hardcode BOOST_WINAPI_IMPORT and 
+            # BOOST_WINAPI_IMPORT_EXCEPT_WM to be always __declspec(dllimport).
+            # Also definition of BOOST_DISABLE_EXPLICIT_SYMBOL_VISIBILITY causes BOOST_HAS_DECLSPEC to be undefined. BOOST_HAS_DECLSPEC flag
+            # is marked as deprecated, but boost uses it in serialization module to force eporting symbols with BOOST_DLLEXPORT - see 
+            # force_include.hpp in boost/serialization. 
+            flags.append("define=BOOST_DISABLE_EXPLICIT_SYMBOL_VISIBILITY")
+
         flags.append(f"link={'shared' if self._shared else 'static'}")
         if self.settings.build_type == "Debug":
             flags.append("variant=debug")

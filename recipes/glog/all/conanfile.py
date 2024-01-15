@@ -3,6 +3,7 @@ from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout, CMakeDeps
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir
 from conan.tools.scm import Version
+from conan.tools.microsoft import is_msvc
 import os
 
 required_conan_version = ">=1.54.0"
@@ -83,6 +84,10 @@ class GlogConan(ConanFile):
             tc.variables["WITH_UNWIND"] = self.options.get_safe("with_unwind", default=False)
         tc.variables["BUILD_TESTING"] = False
         tc.variables["WITH_GTEST"] = False
+
+        if not is_msvc(self):
+            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+            tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
         tc.generate()
 
         tc = CMakeDeps(self)
