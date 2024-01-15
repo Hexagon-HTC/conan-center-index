@@ -21,4 +21,4 @@ patches:
   "1.6.40":
     - patch_file: "patches/0001-apple-using-proper-isysroot.patch"
       patch_description: "Using isysroot passed by conan on apple."
-      patch_type: "conan"
+      patch_type: "HxGN-TC-CV"
