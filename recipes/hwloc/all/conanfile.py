@@ -70,8 +70,9 @@ class HwlocConan(ConanFile):
                 tc.configure_args.extend(["--disable-libxml2"])
             tc.configure_args.extend(["--disable-io", "--disable-cairo"])
             tc.configure_args.extend(["--enable-shared", "--disable-static"])
-            tc.extra_cxxflags.extend(["-fvisibility=hidden", "-fvisibility-inlines-hidden"])
-            tc.extra_cflags.extend(["-fvisibility=hidden", "-fvisibility-inlines-hidden"])
+            if not self.options.shared:
+                tc.extra_cxxflags.extend(["-fvisibility=hidden", "-fvisibility-inlines-hidden"])
+                tc.extra_cflags.extend(["-fvisibility=hidden", "-fvisibility-inlines-hidden"])
             tc.generate()
 
     def build(self):
