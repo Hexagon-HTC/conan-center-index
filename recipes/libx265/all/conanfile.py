@@ -75,7 +75,7 @@ class Libx265Conan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
-    def generata(self):
+    def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
         tc = CMakeToolchain(self)
