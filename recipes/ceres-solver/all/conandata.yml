@@ -27,7 +27,7 @@ patches:
       patch_description: "Fix MinGW build"
       patch_type: "portability"
     - patch_file: "patches/2.1.0-0003-turn-on-glog-on-ios.patch"
-      patch_description: "Turn on glog on iOS"
+      patch_description: "Turn on glog on iOS, because ceres works with miniglog, but it require severity level defined (by default verbose severity is set). To change this severity conanfile.py has to be changed (this is stored in ceres cache variable)."
       patch_type: "HXGN-CV-DT"
   "2.0.0":
     - patch_file: "patches/2.0.0-0001-find-libraries-conan.patch"
