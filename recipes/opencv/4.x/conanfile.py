@@ -572,7 +572,7 @@ class OpenCVConan(ConanFile):
                 "mandatory_options": ["imgcodecs", "imgproc"],
                 "requires": ["opencv_imgcodecs", "opencv_imgproc"] + ffmpeg() + ipp(),
                 "system_libs": [
-                    (self.settings.os == "Android" and int(str(self.settings.os.api_level)) > 20, ["mediandk"]),
+                    (self.settings.os == "Android" and int(str(self.settings.os.api_level)) > 20, ["mediandk", "android", "log", "camera2ndk"]),
                 ],
                 "frameworks": [
                     (is_apple_os(self), ["Accelerate", "AVFoundation", "CoreGraphics", "CoreMedia", "CoreVideo", "QuartzCore"]),
