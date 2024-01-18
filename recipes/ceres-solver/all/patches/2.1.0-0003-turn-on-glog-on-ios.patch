@@ -1,0 +1,15 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7f88fb48..53a6b527 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -187,8 +187,8 @@ if (IOS)
+       "requires at least iOS version 7.0")
+   endif()
+ 
+-  update_cache_variable(MINIGLOG ON)
+-  message(STATUS "Building for iOS: Forcing use of miniglog instead of glog.")
++  update_cache_variable(MINIGLOG OFF)
++  message(STATUS "Building for iOS: Trying to use glog instead of miniglog, as in upstream master branch.")
+ 
+   # Apple claims that the BLAS call dsyrk_ is a private API, and will not allow
+   # you to submit to the Apple Store if the symbol is present.
