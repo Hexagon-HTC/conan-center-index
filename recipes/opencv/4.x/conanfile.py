@@ -488,6 +488,7 @@ class OpenCVConan(ConanFile):
                     (self.settings.os == "Android", ["dl", "m", "log"]),
                     (self.settings.os == "FreeBSD", ["m", "pthread"]),
                     (self.settings.os == "Linux", ["dl", "m", "pthread", "rt"]),
+                    (self.options.with_cuda == True, ["cudart"]),
                 ],
                 "frameworks": [
                     (self.settings.os == "Macos" and self.options.get_safe("with_opencl"), ["OpenCL"]),
