@@ -1447,7 +1447,6 @@ class OpenCVConan(ConanFile):
             tc.variables["VULKAN_INCLUDE_DIRS"] = os.path.join(self.dependencies["vulkan-headers"].package_folder, "include").replace("\\", "/")
         tc.variables["WITH_XIMEA"] = False
         tc.variables["WITH_XINE"] = False
-        tc.variables["WITH_LAPACK"] = False
 
         tc.variables["WITH_GTK"] = self.options.get_safe("with_gtk", False)
         tc.variables["WITH_GTK_2_X"] = self._is_gtk_version2
@@ -1551,7 +1550,7 @@ class OpenCVConan(ConanFile):
         if not is_msvc(self):
             tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
             tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
-            
+
         tc.generate()
 
         CMakeDeps(self).generate()
