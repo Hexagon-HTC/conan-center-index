@@ -164,6 +164,8 @@ class CeressolverConan(ConanFile):
         # IOS_DEPLOYMENT_TARGET variable was added to iOS.cmake file in 1.12.0 version
         if self.settings.os == "iOS":
             tc.variables["IOS_DEPLOYMENT_TARGET"] = self.settings.os.version
+            tc.variables["CMAKE_CXX_FLAGS"] = "-fomit-frame-pointer -fstrict-aliasing"
+            tc.variables["CMAKE_C_FLAGS"] = "-fomit-frame-pointer -fstrict-aliasing"
 
         if not is_msvc(self):
             tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + tc.variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
