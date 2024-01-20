@@ -492,6 +492,7 @@ class OpenCVConan(ConanFile):
                 ],
                 "frameworks": [
                     (self.settings.os == "Macos" and self.options.get_safe("with_opencl"), ["OpenCL"]),
+                    (self.settings.os == "Macos", ["Accelerate"]),
                 ],
             },
             "dnn": {
