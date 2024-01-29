@@ -383,12 +383,8 @@ class OpenCVConan(ConanFile):
             return ["eigen::eigen"] if self.options.with_eigen else []
 
         def ffmpeg():
-            if self.options.with_ffmpeg == False:
-                return []
-            if self.settings.os == "Windows":
+            if self.options.get_safe("with_ffmpeg", False) and self.settings.os == "Windows":
                 return ["opencv_videoio_ffmpeg460_64"]
-            if self.settings.os == "Linux":
-                return ["avutil", "avcodec", "avformat", "swscale"]
             return []
 
         def gtk():
@@ -581,7 +577,7 @@ class OpenCVConan(ConanFile):
                 "requires": ["opencv_imgcodecs", "opencv_imgproc"] + ipp() + ffmpeg(),
                 "system_libs": [
                     (self.settings.os == "Android" and int(str(self.settings.os.api_level)) > 20, ["mediandk", "android", "log", "camera2ndk"]),
-                    (self.settings.os == "Linux" and self.options.with_ffmpeg, ffmpeg()),
+                    (self.settings.os == "Linux" and self.options.with_ffmpeg, ["avutil", "avcodec", "avformat", "swscale"]),
                 ],
                 "frameworks": [
                     (is_apple_os(self), ["Accelerate", "AVFoundation", "CoreGraphics", "CoreMedia", "CoreVideo", "QuartzCore"]),
