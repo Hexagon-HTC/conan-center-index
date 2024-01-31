@@ -6,14 +6,16 @@ from conan.tools.files import apply_conandata_patches, export_conandata_patches,
 from conan.tools.gnu import PkgConfigDeps
 from conan.tools.scm import Version
 from conan.tools.system import package_manager
+from conan.tools.microsoft import is_msvc
+
 import os
 
 required_conan_version = ">=1.53.0"
 
+
 class PclConan(ConanFile):
     name = "pcl"
-    description = ("The Point Cloud Library (PCL) is a standalone, large-scale, "
-                   "open project for 2D/3D image and point cloud processing.")
+    description = "The Point Cloud Library (PCL) is a standalone, large-scale, " "open project for 2D/3D image and point cloud processing."
     license = "BSD-3-Clause"
     url = "https://github.com/conan-io/conan-center-index"
     homepage = "https://github.com/PointCloudLibrary/pcl"
@@ -242,16 +244,38 @@ class PclConan(ConanFile):
             "gpu_containers": ["common"],
             "gpu_features": ["common", "geometry", "gpu_containers", "gpu_octree", "gpu_utils"],
             "gpu_kinfu": ["common", "geometry", "gpu_containers", "io", "search"],
-            "gpu_kinfu_large_scale": ["common", "features", "filters", "geometry", "gpu_containers",
-                                      "gpu_utils", "io", "kdtree", "octree", "search", "surface"],
+            "gpu_kinfu_large_scale": [
+                "common",
+                "features",
+                "filters",
+                "geometry",
+                "gpu_containers",
+                "gpu_utils",
+                "io",
+                "kdtree",
+                "octree",
+                "search",
+                "surface",
+            ],
             "gpu_octree": ["common", "gpu_containers", "gpu_utils"],
-            "gpu_people": ["common", "features", "filters", "geometry", "gpu_containers",
-                           "gpu_utils", "io", "kdtree", "octree", "search", "segmentation",
-                           "surface", "visualization"],
+            "gpu_people": [
+                "common",
+                "features",
+                "filters",
+                "geometry",
+                "gpu_containers",
+                "gpu_utils",
+                "io",
+                "kdtree",
+                "octree",
+                "search",
+                "segmentation",
+                "surface",
+                "visualization",
+            ],
             "gpu_segmentation": ["common", "gpu_containers", "gpu_octree", "gpu_utils"],
             "gpu_surface": ["common", "geometry", "gpu_containers", "gpu_utils"],
-            "gpu_tracking": ["common", "filters", "gpu_containers", "gpu_octree",
-                             "gpu_utils", "kdtree", "octree", "search", "tracking"],
+            "gpu_tracking": ["common", "filters", "gpu_containers", "gpu_octree", "gpu_utils", "kdtree", "octree", "search", "tracking"],
             "gpu_utils": ["common", "gpu_containers"],
             "io": ["common", "octree"],
             "kdtree": ["common"],
@@ -259,18 +283,13 @@ class PclConan(ConanFile):
             "ml": ["common"],
             "octree": ["common"],
             "outofcore": ["common", "filters", "io", "octree", "visualization"],
-            "people": ["common", "filters", "geometry", "io", "kdtree", "octree",
-                       "sample_consensus", "search", "segmentation", "visualization"],
-            "recognition": ["common", "features", "filters", "io", "kdtree", "ml",
-                            "octree", "registration", "sample_consensus", "search"],
-            "registration": ["common", "features", "filters", "kdtree", "octree",
-                             "sample_consensus", "search"],
+            "people": ["common", "filters", "geometry", "io", "kdtree", "octree", "sample_consensus", "search", "segmentation", "visualization"],
+            "recognition": ["common", "features", "filters", "io", "kdtree", "ml", "octree", "registration", "sample_consensus", "search"],
+            "registration": ["common", "features", "filters", "kdtree", "octree", "sample_consensus", "search"],
             "sample_consensus": ["common", "search"],
             "search": ["common", "kdtree", "octree"],
-            "segmentation": ["common", "features", "filters", "geometry", "kdtree",
-                             "ml", "octree", "sample_consensus", "search"],
-            "simulation": ["common", "features", "filters", "geometry", "io",
-                           "kdtree", "octree", "search", "surface", "visualization"],
+            "segmentation": ["common", "features", "filters", "geometry", "kdtree", "ml", "octree", "sample_consensus", "search"],
+            "simulation": ["common", "features", "filters", "geometry", "io", "kdtree", "octree", "search", "surface", "visualization"],
             "stereo": ["common", "io"],
             "surface": ["common", "kdtree", "octree", "search"],
             "tracking": ["common", "filters", "kdtree", "octree", "search"],
@@ -280,14 +299,51 @@ class PclConan(ConanFile):
     @property
     def _internal_optional_deps(self):
         return {
-            "apps": ["2d", "common", "cuda_common", "cuda_features", "cuda_io",
-                     "cuda_sample_consensus", "cuda_segmentation", "features", "filters",
-                     "geometry", "io", "kdtree", "keypoints", "ml", "octree", "recognition",
-                     "registration", "sample_consensus", "search", "segmentation", "stereo",
-                     "surface", "tracking", "visualization"],
-            "tools": ["features", "filters", "geometry", "gpu_kinfu", "gpu_kinfu_large_scale",
-                      "io", "kdtree", "keypoints", "ml", "octree", "recognition", "registration",
-                      "sample_consensus", "search", "segmentation", "surface", "visualization"],
+            "apps": [
+                "2d",
+                "common",
+                "cuda_common",
+                "cuda_features",
+                "cuda_io",
+                "cuda_sample_consensus",
+                "cuda_segmentation",
+                "features",
+                "filters",
+                "geometry",
+                "io",
+                "kdtree",
+                "keypoints",
+                "ml",
+                "octree",
+                "recognition",
+                "registration",
+                "sample_consensus",
+                "search",
+                "segmentation",
+                "stereo",
+                "surface",
+                "tracking",
+                "visualization",
+            ],
+            "tools": [
+                "features",
+                "filters",
+                "geometry",
+                "gpu_kinfu",
+                "gpu_kinfu_large_scale",
+                "io",
+                "kdtree",
+                "keypoints",
+                "ml",
+                "octree",
+                "recognition",
+                "registration",
+                "sample_consensus",
+                "search",
+                "segmentation",
+                "surface",
+                "visualization",
+            ],
         }
 
     def _is_header_only(self, component):
@@ -361,7 +417,7 @@ class PclConan(ConanFile):
         return is_available and is_used
 
     def requirements(self):
-        self.requires("boost/1.83.0", transitive_headers=True)
+        self.requires("boost/1.80.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if self._is_enabled("flann"):
             self.requires("flann/1.9.2", transitive_headers=True)
@@ -411,22 +467,16 @@ class PclConan(ConanFile):
         for component in sorted(enabled_components):
             for dep in self._external_deps.get(component, []):
                 if not self._is_enabled(dep):
-                    raise ConanInvalidConfiguration(
-                        f"'with_{dep}=True' is required when '{component}' is enabled."
-                    )
+                    raise ConanInvalidConfiguration(f"'with_{dep}=True' is required when '{component}' is enabled.")
             for dep in self._internal_deps[component]:
                 if dep not in enabled_components:
-                    raise ConanInvalidConfiguration(
-                        f"'{dep}=True' is required when '{component}' is enabled."
-                    )
+                    raise ConanInvalidConfiguration(f"'{dep}=True' is required when '{component}' is enabled.")
 
         if self.settings.compiler.cppstd:
             check_min_cppstd(self, self._min_cppstd)
         minimum_version = self._compilers_minimum_version.get(str(self.settings.compiler), False)
         if minimum_version and Version(self.settings.compiler.version) < minimum_version:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support."
-            )
+            raise ConanInvalidConfiguration(f"{self.ref} requires C++{self._min_cppstd}, which your compiler does not support.")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
@@ -473,6 +523,11 @@ class PclConan(ConanFile):
         for comp in disabled:
             tc.cache_variables[f"BUILD_{comp}"] = False
 
+        tc.variables["CMAKE_CXX_FLAGS"] = "-DEIGEN_MAX_ALIGN_BYTES=0"
+        if not is_msvc(self) and not self.options.shared:
+            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+            tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -499,9 +554,7 @@ class PclConan(ConanFile):
         cmake.build()
 
     def package(self):
-        copy(self, "LICENSE.txt",
-             dst=os.path.join(self.package_folder, "licenses"),
-             src=self.source_folder)
+        copy(self, "LICENSE.txt", dst=os.path.join(self.package_folder, "licenses"), src=self.source_folder)
 
         cmake = CMake(self)
         cmake.install()
