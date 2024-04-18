@@ -1,0 +1,34 @@
+--- a/src/libjasper/base/jas_image.c
++++ b/src/libjasper/base/jas_image.c
+@@ -534,7 +534,7 @@
+ 	const uint_least32_t drs = jas_matrix_rowstep(data);
+ 
+ #ifdef _MSC_VER
+-	jas_uchar *stack_buffer;
++	jas_uchar *stack_buffer = NULL;
+ 	if (cps == 1 && !sgnd && width <= 16384) {
+ 		/* can't use variable-length arrays here because MSVC
+ 		   doesn't support this C99 feature */
+@@ -629,7 +629,7 @@
+ 	const uint_least32_t drs = jas_matrix_rowstep(data);
+ 
+ #ifdef _MSC_VER
+-	jas_uchar *stack_buffer;
++	jas_uchar *stack_buffer = NULL;
+ 	if (cps == 1 && !sgnd && width <= 16384) {
+ 		/* can't use variable-length arrays here because MSVC
+ 		   doesn't support this C99 feature */
+--- a/src/libjasper/include/jasper/jas_config.h.in
++++ b/src/libjasper/include/jasper/jas_config.h.in
+@@ -114,7 +114,11 @@
+ #endif
+ 
+ #if (__STDC_VERSION__ - 0 < JAS_STDC_VERSION)
++#if _MSC_VER
++#pragma message("Your code is being built against an older version of the C standard than JasPer was.  Although this is supported, this may require some extra preprocessor defines when building.")
++#else
+ #warning "Your code is being built against an older version of the C standard than JasPer was.  Although this is supported, this may require some extra preprocessor defines when building."
++#endif
+ #endif
+ 
+ #endif

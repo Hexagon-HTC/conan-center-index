@@ -50,6 +50,9 @@ patches:
     - patch_file: "patches/0001-use-cmake-targets-9.1.0.patch"
       patch_type: "conan"
       patch_description: "Use cmake targets"
+    - patch_file: "patches/0002-not-use-setargv-on-uwp-9.1.0.patch"
+      patch_type: "HxGN-TC-CV"
+      patch_description: "Not use setargv.lib on UWP" 
   "9.0.1":
     - patch_file: "patches/0001-use-cmake-targets-9.0.1.patch"
       patch_type: "conan"

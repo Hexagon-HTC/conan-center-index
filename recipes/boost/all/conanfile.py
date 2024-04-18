@@ -155,7 +155,8 @@ class BoostConan(ConanFile):
     _cached_dependencies = None
 
     def export(self):
-        copy(self, f"dependencies/{self._dependency_filename}", src=self.recipe_folder, dst=self.export_folder)
+        print("dep filename: ", self._dependency_filename, self.recipe_folder, self.export_folder)
+        copy(self, os.path.join("dependencies", self._dependency_filename), src=self.recipe_folder, dst=self.export_folder)
 
     def export_sources(self):
         export_conandata_patches(self)
@@ -262,7 +263,7 @@ class BoostConan(ConanFile):
                 raise ConanException(f"{self._dependency_filename} has the configure options {opt_name} which is not available in conanfile.py")
 
         # stacktrace_backtrace not supported on Windows
-        if self.settings.os == "Windows":
+        if self.settings.os == "Windows" or self.settings.os == "WindowsStore":
             del self.options.with_stacktrace_backtrace
 
         # nowide requires a c++11-able compiler + movable std::fstream: change default to not build on compiler with too old default c++ standard or too low compiler.cppstd
@@ -386,7 +387,7 @@ class BoostConan(ConanFile):
         if (self._is_apple_embedded_platform or self.settings.get_safe("os.subsystem") == "catalyst"):
              # sandboxed environment - cannot launch external processes (like addr2line), system() function is forbidden
             return False
-        return not self.options.header_only and not self.options.without_stacktrace and self.settings.os != "Windows"
+        return not self.options.header_only and not self.options.without_stacktrace and self.settings.os != "Windows" and self.settings.os != "WindowsStore"
 
     def configure(self):
         if self.options.header_only:
@@ -820,7 +821,7 @@ class BoostConan(ConanFile):
         if cross_building(self, skip_x64_x86=True):
             # When cross building, do not attempt to run the test-executable (assume they work)
             replace_in_file(self, stacktrace_jamfile, "$(>) > $(<)", "echo \"\" > $(<)", strict=False)
-        if self._with_stacktrace_backtrace and self.settings.os != "Windows" and not cross_building(self):
+        if self._with_stacktrace_backtrace and self.settings.os != "Windows" and self.settings.os != "WindowsStore" and not cross_building(self):
             # When libbacktrace is shared, give extra help to the test-executable
             linker_var = "DYLD_LIBRARY_PATH" if self.settings.os == "Macos" else "LD_LIBRARY_PATH"
             libbacktrace_libdir = self.dependencies["libbacktrace"].cpp_info.aggregated_components().libdirs[0]
@@ -1045,7 +1046,8 @@ class BoostConan(ConanFile):
             # is marked as deprecated, but boost uses it in serialization module to force eporting symbols with BOOST_DLLEXPORT - see 
             # force_include.hpp in boost/serialization. 
             flags.append("define=BOOST_DISABLE_EXPLICIT_SYMBOL_VISIBILITY")
-
+            
+        flags.append("define=BOOST_ALL_NO_LIB")
         flags.append(f"link={'shared' if self._shared else 'static'}")
         if self.settings.build_type == "Debug":
             flags.append("variant=debug")
@@ -1633,9 +1635,9 @@ class BoostConan(ConanFile):
             def filter_transform_module_libraries(names):
                 libs = []
                 for name in names:
-                    if name in ("boost_stacktrace_windbg", "boost_stacktrace_windbg_cached") and self.settings.os != "Windows":
+                    if name in ("boost_stacktrace_windbg", "boost_stacktrace_windbg_cached") and self.settings.os != "Windows" and self.settings.os != "WindowsStore":
                         continue
-                    if name in ("boost_stacktrace_addr2line", "boost_stacktrace_backtrace", "boost_stacktrace_basic",) and self.settings.os == "Windows":
+                    if name in ("boost_stacktrace_addr2line", "boost_stacktrace_backtrace", "boost_stacktrace_basic",) and (self.settings.os == "Windows" or self.settings.os == "WindowsStore"):
                         continue
                     if name == "boost_stacktrace_addr2line" and not self._stacktrace_addr2line_available:
                         continue
@@ -1732,7 +1734,7 @@ class BoostConan(ConanFile):
 
                 self.cpp_info.components["stacktrace_noop"].defines.append("BOOST_STACKTRACE_USE_NOOP")
 
-                if self.settings.os == "Windows":
+                if self.settings.os == "Windows" or self.settings.os == "WindowsStore":
                     self.cpp_info.components["stacktrace_windbg"].defines.append("BOOST_STACKTRACE_USE_WINDBG")
                     self.cpp_info.components["stacktrace_windbg"].system_libs.extend(["ole32", "dbgeng"])
                     self.cpp_info.components["stacktrace_windbg_cached"].defines.append("BOOST_STACKTRACE_USE_WINDBG_CACHED")

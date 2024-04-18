@@ -88,10 +88,10 @@ class ProtobufConan(ConanFile):
         tc.cache_variables["CMAKE_INSTALL_CMAKEDIR"] = self._cmake_install_base_path.replace("\\", "/")
         tc.cache_variables["protobuf_WITH_ZLIB"] = self.options.with_zlib
         tc.cache_variables["protobuf_BUILD_TESTS"] = False
-        tc.cache_variables["protobuf_BUILD_PROTOC_BINARIES"] = self.settings.os != "tvOS"
+        tc.cache_variables["protobuf_BUILD_PROTOC_BINARIES"] = self.settings.os != "tvOS" and self.settings.os != "WindowsStore"
         if not self.options.debug_suffix:
             tc.cache_variables["protobuf_DEBUG_POSTFIX"] = ""
-        tc.cache_variables["protobuf_BUILD_LIBPROTOC"] = self.settings.os != "tvOS"
+        tc.cache_variables["protobuf_BUILD_LIBPROTOC"] = self.settings.os != "tvOS" and self.settings.os != "WindowsStore"
         tc.cache_variables["protobuf_DISABLE_RTTI"] = not self.options.with_rtti
         if is_msvc(self) or self._is_clang_cl:
             runtime = msvc_runtime_flag(self)
@@ -237,7 +237,7 @@ class ProtobufConan(ConanFile):
                 self.cpp_info.components["libprotobuf"].defines = ["PROTOBUF_USE_DLLS"]
 
         # libprotoc
-        if self.settings.os != "tvOS":
+        if self.settings.os != "tvOS" and self.settings.os != "WindowsStore":
             self.cpp_info.components["libprotoc"].set_property("cmake_target_name", "protobuf::libprotoc")
             self.cpp_info.components["libprotoc"].libs = [lib_prefix + "protoc" + lib_suffix]
             self.cpp_info.components["libprotoc"].requires = ["libprotobuf"]

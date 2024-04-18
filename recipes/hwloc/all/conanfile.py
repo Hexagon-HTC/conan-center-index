@@ -1,7 +1,7 @@
 from conan import ConanFile
 from conan.tools.apple import is_apple_os, fix_apple_shared_install_name
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
-from conan.tools.files import copy, get, rm, rmdir
+from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, rm, rmdir
 from conan.tools.gnu import Autotools, AutotoolsToolchain, PkgConfigDeps
 from conan.tools.layout import basic_layout
 from conan.tools.microsoft import is_msvc
@@ -27,6 +27,9 @@ class HwlocConan(ConanFile):
         "with_libxml2": False
     }
 
+    def export_sources(self):
+        export_conandata_patches(self)
+        
     def configure(self):
         self.settings.rm_safe("compiler.cppstd")
         self.settings.rm_safe("compiler.libcxx")
@@ -39,14 +42,14 @@ class HwlocConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
     def layout(self):
-        if self.settings.os == "Windows":
+        if self.settings.os == "Windows" or self.settings.os == "WindowsStore":
             cmake_layout(self, src_folder="src")
         else:
             basic_layout(self, src_folder="src")
 
     def generate(self):
 
-        if self.settings.os == "Windows":
+        if self.settings.os == "Windows" or self.settings.os == "WindowsStore":
             deps = CMakeDeps(self)
             deps.generate()
             tc = CMakeToolchain(self)
@@ -73,7 +76,8 @@ class HwlocConan(ConanFile):
             tc.generate()
 
     def build(self):
-        if self.settings.os == "Windows":
+        apply_conandata_patches(self)
+        if self.settings.os == "Windows" or self.settings.os == "WindowsStore":
             cmake = CMake(self)
             cmake.configure(build_script_folder=os.path.join("contrib", "windows-cmake"))
             cmake.build()
@@ -84,7 +88,7 @@ class HwlocConan(ConanFile):
 
     def package(self):
         copy(self, "COPYING", self.source_folder, dst=os.path.join(self.package_folder, "licenses"))
-        if self.settings.os == "Windows":
+        if self.settings.os == "Windows" or self.settings.os == "WindowsStore":
             cmake = CMake(self)
             cmake.install()
             # remove PDB files

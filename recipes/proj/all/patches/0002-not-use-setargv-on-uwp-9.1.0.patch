@@ -1,0 +1,13 @@
+--- a/src/apps/CMakeLists.txt
++++ b/src/apps/CMakeLists.txt
+@@ -40,7 +40,9 @@
+     # Linking to setargv.obj enables wildcard globbing for the
+     # command line utilities, when compiling with MSVC
+     # https://docs.microsoft.com/cpp/c-language/expanding-wildcard-arguments
+-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} setargv.obj")
++    if(NOT WINDOWS_STORE)
++      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} setargv.obj")
++    endif()
+ 
+ endif()
+ 

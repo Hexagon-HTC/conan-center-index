@@ -103,7 +103,7 @@ class ZlibConan(ConanFile):
         self.cpp_info.set_property("cmake_file_name", "ZLIB")
         self.cpp_info.set_property("cmake_target_name", "ZLIB::ZLIB")
         self.cpp_info.set_property("pkg_config_name", "zlib")
-        if self.settings.os == "Windows" and not self._is_mingw:
+        if (self.settings.os == "Windows" or self.settings.os == "WindowsStore") and not self._is_mingw:
             libname = "zdll" if self.options.shared else "zlib"
         else:
             libname = "z"

@@ -1,0 +1,13 @@
+--- a/hwloc/topology-windows.c	
++++ b/hwloc/topology-windows.c	
+@@ -1010,7 +1010,10 @@
+      * (manifest of the program, not of libhwloc.dll), they may return old versions
+      * if the currently-running Windows is not listed in the manifest.
+      */
++    #pragma warning( push )
++    #pragma warning( disable : 4996 )
+     GetVersionEx((LPOSVERSIONINFO)&osvi);
++    #pragma warning( pop )
+   }
+ 
+   if (osvi.dwMajorVersion >= 10) {

@@ -1,0 +1,10 @@
+--- a/modules/imgcodecs/src/grfmt_tiff.cpp
++++ b/modules/imgcodecs/src/grfmt_tiff.cpp
+@@ -48,6 +48,7 @@
+ #include "precomp.hpp"
+ 
+ #ifdef HAVE_TIFF
++#pragma warning( disable : 4996 )
+ #include <opencv2/core/utils/logger.hpp>
+ 
+ #include "grfmt_tiff.hpp"

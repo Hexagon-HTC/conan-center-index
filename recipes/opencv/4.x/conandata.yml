@@ -87,6 +87,9 @@ patches:
     - patch_file: "patches/4.6.0-0003-fix-visibility.patch"
       patch_description: "Changed any cast to use not unique type_info to make sure tested type matches the type stored in any"
       patch_type: "HXGN-CV"
+    - patch_file: "patches/4.6.0-0004-fix-uwp-warnings.patch"
+      patch_description: "Supressing warnings about using deprecated typedefs in libtiff"
+      patch_type: "HXGN-CV"
   "4.5.5":
     - patch_file: "patches/4.5.5-0001-find-openexr.patch"
       patch_description: "Robust discovery & injection of OpenEXR"

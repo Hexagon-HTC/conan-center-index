@@ -17,3 +17,10 @@ sources:
   "2.7.2":
     sha256: "407d2712b1c9026787461ddb62044fa9b5c6007755ca37652b360d837a75344f"
     url: https://download.open-mpi.org/release/hwloc/v2.7/hwloc-2.7.2.tar.gz
+patches:
+  "2.9.3":
+    - patch_file: "patches/0001-suppress-uwp-warnings.patch"
+      patch_description: "Suppressig warnings regarding deprecated WinAPI functions"
+      patch_type: "HxGN-TC-CV"
+
+

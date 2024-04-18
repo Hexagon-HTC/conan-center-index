@@ -2,7 +2,7 @@ from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
 from conan.tools.apple import is_apple_os
 from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import get, load, save
+from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, load, save
 from conan.tools.scm import Version
 from conan.tools.microsoft import is_msvc
 import os
@@ -86,7 +86,7 @@ class Sqlite3Conan(ConanFile):
         return Version(self.version) >= "3.35.0"
 
     def config_options(self):
-        if self.settings.os == "Windows":
+        if self.settings.os == "Windows" or self.settings.os == "WindowsStore":
             del self.options.fPIC
         if not self._has_enable_math_function_option:
             del self.options.enable_math_functions
@@ -108,6 +108,9 @@ class Sqlite3Conan(ConanFile):
             if self.options.omit_load_extension:
                 raise ConanInvalidConfiguration("build_executable=True requires omit_load_extension=True")
 
+    def export_sources(self):
+            export_conandata_patches(self)
+            
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
@@ -137,7 +140,7 @@ class Sqlite3Conan(ConanFile):
             tc.variables["ENABLE_MATH_FUNCTIONS"] = self.options.enable_math_functions
         tc.variables["HAVE_FDATASYNC"] = True
         tc.variables["HAVE_GMTIME_R"] = True
-        tc.variables["HAVE_LOCALTIME_R"] = self.settings.os != "Windows"
+        tc.variables["HAVE_LOCALTIME_R"] = self.settings.os != "Windows" and self.settings.os != "WindowsStore"
         tc.variables["HAVE_POSIX_FALLOCATE"] = not (self.settings.os in ["Windows", "Android"] or is_apple_os(self))
         tc.variables["HAVE_STRERROR_R"] = True
         tc.variables["HAVE_USLEEP"] = True
@@ -151,11 +154,14 @@ class Sqlite3Conan(ConanFile):
         tc.variables["DISABLE_DEFAULT_VFS"] = not self.options.enable_default_vfs
         tc.variables["ENABLE_DBPAGE_VTAB"] = self.options.enable_dbpage_vtab
         if not is_msvc(self):
-            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + tc.variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
             tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + tc.variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+        
+        if self.settings.os == "WindowsStore":
+            tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + "/DSQLITE_OS_WINRT=1 /D_CRT_NONSTDC_NO_DEPRECATE"
         tc.generate()
 
     def build(self):
+        apply_conandata_patches(self)
         cmake = CMake(self)
         cmake.configure(build_script_folder=os.path.join(self.source_folder, os.pardir))
         cmake.build()
@@ -208,7 +214,7 @@ class Sqlite3Conan(ConanFile):
                 self.cpp_info.components["sqlite"].system_libs.append("dl")
             if self.options.enable_fts5 or self.options.get_safe("enable_math_functions"):
                 self.cpp_info.components["sqlite"].system_libs.append("m")
-        elif self.settings.os == "Windows":
+        elif self.settings.os == "Windows" or self.settings.os == "WindowsStore":
             if self.options.shared:
                 self.cpp_info.components["sqlite"].defines.append("SQLITE_API=__declspec(dllimport)")
 

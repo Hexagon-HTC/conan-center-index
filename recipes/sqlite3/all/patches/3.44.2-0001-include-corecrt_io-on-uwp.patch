@@ -1,0 +1,10 @@
+--- a/shell.c	
++++ b/shell.c
+@@ -197,6 +197,7 @@
+ #if defined(_WIN32) || defined(WIN32)
+ # if SQLITE_OS_WINRT
+ #  define SQLITE_OMIT_POPEN 1
++#include <corecrt_io.h>
+ # else
+ #  include <io.h>
+ #  include <fcntl.h>
