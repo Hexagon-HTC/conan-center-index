@@ -1326,6 +1326,12 @@ class OpenCVConan(ConanFile):
             replace_in_file(self, freetype_cmake, "ocv_check_modules(HARFBUZZ harfbuzz)", "find_package(harfbuzz REQUIRED CONFIG)")
             replace_in_file(self, freetype_cmake, "HARFBUZZ_", "harfbuzz_")
 
+    def _apply_conan_profile_build_flags(self, tc):
+        cflags = " " + " ".join(self.conf.get("tools.build:cflags", default=[], check_type=list)) + " "
+        cxxflags = " " + " ".join(self.conf.get("tools.build:cxxflags", default=[], check_type=list)) + " "
+        tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + cflags
+        tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + cxxflags
+
     def generate(self):
         VirtualBuildEnv(self).generate()
         if self._is_legacy_one_profile:
@@ -1523,6 +1529,7 @@ class OpenCVConan(ConanFile):
             tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
             tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
 
+        self._apply_conan_profile_build_flags(tc)
         tc.generate()
 
         CMakeDeps(self).generate()

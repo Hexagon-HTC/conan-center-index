@@ -93,6 +93,12 @@ class LibtiffConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def _apply_conan_profile_build_flags(self, tc):
+        cflags = " " + " ".join(self.conf.get("tools.build:cflags", default=[], check_type=list)) + " "
+        cxxflags = " " + " ".join(self.conf.get("tools.build:cxxflags", default=[], check_type=list)) + " "
+        tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + cflags
+        tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + cxxflags
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["lzma"] = self.options.lzma
@@ -114,6 +120,7 @@ class LibtiffConan(ConanFile):
         # BUILD_SHARED_LIBS must be set in command line because defined upstream before project()
         tc.cache_variables["BUILD_SHARED_LIBS"] = bool(self.options.shared)
         tc.cache_variables["CMAKE_FIND_PACKAGE_PREFER_CONFIG"] = True
+        self._apply_conan_profile_build_flags(tc)
         tc.generate()
         deps = CMakeDeps(self)
         if Version(self.version) >= "4.5.1":
@@ -122,6 +129,7 @@ class LibtiffConan(ConanFile):
             deps.set_property("libdeflate", "cmake_file_name", "Deflate")
             deps.set_property("libdeflate", "cmake_target_name", "Deflate::Deflate")
 
+        # TODO(jpre): Setting tc.cache_variables after tc.generate() has no effect? But setting -fvisibility before tc.generate() breaks OpenCV - it fails to link TIFF symbols!
         if not is_msvc(self):
             tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + tc.variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
             tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + tc.variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"

@@ -74,6 +74,12 @@ class ProjConan(ConanFile):
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
 
+    def _apply_conan_profile_build_flags(self, tc):
+        cflags = " " + " ".join(self.conf.get("tools.build:cflags", default=[], check_type=list)) + " "
+        cxxflags = " " + " ".join(self.conf.get("tools.build:cxxflags", default=[], check_type=list)) + " "
+        tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + cflags
+        tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + cxxflags
+
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
@@ -116,6 +122,7 @@ class ProjConan(ConanFile):
             if not self.options.shared: 
                 tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + " -DPROJ_DLL="" -DGEOD_DLL="""
                 tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + " -DPROJ_DLL="" -DGEOD_DLL="""
+        self._apply_conan_profile_build_flags(tc)
         tc.generate()
 
         deps = CMakeDeps(self)

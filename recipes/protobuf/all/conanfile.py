@@ -83,6 +83,12 @@ class ProtobufConan(ConanFile):
     def _cmake_install_base_path(self):
         return os.path.join("lib", "cmake", "protobuf")
 
+    def _apply_conan_profile_build_flags(self, tc):
+        cflags = " " + " ".join(self.conf.get("tools.build:cflags", default=[], check_type=list)) + " "
+        cxxflags = " " + " ".join(self.conf.get("tools.build:cxxflags", default=[], check_type=list)) + " "
+        tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + cflags
+        tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + cxxflags
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.cache_variables["CMAKE_INSTALL_CMAKEDIR"] = self._cmake_install_base_path.replace("\\", "/")
@@ -104,6 +110,7 @@ class ProtobufConan(ConanFile):
         if not is_msvc(self):
             tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + tc.variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
             tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + tc.variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+        self._apply_conan_profile_build_flags(tc)
         tc.generate()
 
         deps = CMakeDeps(self)

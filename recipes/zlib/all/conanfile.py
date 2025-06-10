@@ -52,6 +52,12 @@ class ZlibConan(ConanFile):
         get(self, **self.conan_data["sources"][self.version],
             destination=self.source_folder, strip_root=True)
 
+    def _apply_conan_profile_build_flags(self, tc):
+        cflags = " " + " ".join(self.conf.get("tools.build:cflags", default=[], check_type=list)) + " "
+        cxxflags = " " + " ".join(self.conf.get("tools.build:cxxflags", default=[], check_type=list)) + " "
+        tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + cflags
+        tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + cxxflags
+
     def generate(self):
         tc = CMakeToolchain(self)
         tc.variables["SKIP_INSTALL_ALL"] = False
@@ -64,6 +70,7 @@ class ZlibConan(ConanFile):
         # we can hide symbols only in static lib becasue zlib is not exporting api symbols for other configuration than msvc
         if not is_msvc(self) and not self.options.shared:
             tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + tc.variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+        self._apply_conan_profile_build_flags(tc)
         tc.generate()
 
     def _patch_sources(self):
