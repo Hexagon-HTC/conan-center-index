@@ -98,6 +98,12 @@ class LibjpegTurboConan(ConanFile):
         return self.options.get_safe("arithmetic_decoder", False) or \
                self.options.libjpeg7_compatibility or self.options.libjpeg8_compatibility
 
+    def _apply_conan_profile_build_flags(self, tc):
+        cflags = " " + " ".join(self.conf.get("tools.build:cflags", default=[], check_type=list)) + " "
+        cxxflags = " " + " ".join(self.conf.get("tools.build:cxxflags", default=[], check_type=list)) + " "
+        tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + cflags
+        tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + cxxflags
+
     def generate(self):
         env = VirtualBuildEnv(self)
         env.generate()
@@ -123,6 +129,7 @@ class LibjpegTurboConan(ConanFile):
         if not is_msvc(self) and not self.options.shared:
             tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + tc.variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
             tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + tc.variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+        self._apply_conan_profile_build_flags(tc)
         tc.generate()
 
     def _patch_sources(self):

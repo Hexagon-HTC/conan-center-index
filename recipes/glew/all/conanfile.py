@@ -44,9 +44,8 @@ class GlewConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        if self.settings.os == "Windows":
-            self.requires("opengl/system")
-            self.requires("glu/system")
+        self.requires("opengl/system")
+        self.requires("glu/system")
 
     def source(self):
         get(self, **self.conan_data["sources"][self.version], strip_root=True)
