@@ -1,0 +1,12 @@
+diff --git a/modules/videoio/src/cap_ffmpeg_impl.hpp b/modules/videoio/src/cap_ffmpeg_impl.hpp
+index b7fa0b745c..066f2ecabf 100644
+--- a/modules/videoio/src/cap_ffmpeg_impl.hpp
++++ b/modules/videoio/src/cap_ffmpeg_impl.hpp
+@@ -91,6 +91,7 @@ extern "C" {
+ 
+ #include <libavcodec/avcodec.h>
+ #include <libswscale/swscale.h>
++#include <libavcodec/version.h>
+ 
+ // https://github.com/FFmpeg/FFmpeg/blob/b6af56c034759b81985f8ea094e41cbd5f7fecfb/doc/APIchanges#L602-L605
+ #if LIBAVFORMAT_BUILD < CALC_FFMPEG_VERSION(58, 9, 100)
