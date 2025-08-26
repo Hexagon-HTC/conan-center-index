@@ -97,6 +97,14 @@ class ProjConan(ConanFile):
             tc.cache_variables["CMAKE_BUILD_RPATH"] = ";".join(libdirs_host)
         if Version(self.version) < "9.4.0":
             tc.cache_variables["CMAKE_POLICY_VERSION_MINIMUM"] = "3.5" # CMake 4 support
+
+        if not is_msvc(self):
+            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + tc.variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+            tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + tc.variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+        if not self.options.shared:
+            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + " -DPROJ_DLL="" -DGEOD_DLL="""
+            tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + " -DPROJ_DLL="" -DGEOD_DLL="""
+
         tc.generate()
 
         deps = CMakeDeps(self)
