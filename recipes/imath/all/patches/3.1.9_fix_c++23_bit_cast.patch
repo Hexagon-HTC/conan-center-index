@@ -1,0 +1,47 @@
+--- src/ImathTest/testFun.cpp	2025-12-15 18:51:07
++++ src/ImathTest/testFun.cpp	2025-12-15 18:51:00
+@@ -9,8 +9,11 @@
+
+ #include <ImathFun.h>
+ #if __cplusplus >= 202002L
+-#    include <bit>
++#    if __has_include(<bit>)
++#         include <bit>
++#    endif
+ #endif
++
+ #include <iostream>
+ #include <assert.h>
+ #include <iostream>
+@@ -20,19 +23,19 @@
+
+ using namespace std;
+
+-#if __cplusplus < 202002L
++
++#if defined(__cpp_lib_bit_cast) && (__cpp_lib_bit_cast >= 201806L)
++    using std::bit_cast;
++#else
+     template <typename To, typename From>
+-    static inline To
+-    bit_cast (From from)
+-    {
+-        static_assert (sizeof (From) == sizeof (To), "Type sizes do not match");
+-        union
+-        {
+-            From f;
+-            To   t;
+-        } u;
+-        u.f = from;
+-        return u.t;
++    static inline To bit_cast(const From& from) noexcept {
++        static_assert(sizeof(From) == sizeof(To), "Type sizes do not match");
++        static_assert(std::is_trivially_copyable<From>::value, "From must be trivially copyable");
++        static_assert(std::is_trivially_copyable<To>::value, "To must be trivially copyable");
++
++        To to;
++        std::memcpy(&to, &from, sizeof(To));
++        return to;
+     }
+ #endif
+
