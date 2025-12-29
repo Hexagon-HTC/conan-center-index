@@ -1,6 +1,6 @@
 --- src/ImathTest/testFun.cpp	2025-12-15 18:51:07
 +++ src/ImathTest/testFun.cpp	2025-12-15 18:51:00
-@@ -9,8 +9,11 @@
+@@ -9,30 +9,34 @@
 
  #include <ImathFun.h>
  #if __cplusplus >= 202002L
@@ -13,7 +13,10 @@
  #include <iostream>
  #include <assert.h>
  #include <iostream>
-@@ -20,19 +23,19 @@
+ #include <cstdint>
+ #include <stdio.h>
+ #include <inttypes.h>
++#include <cstring>
 
  using namespace std;
 
