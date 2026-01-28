@@ -38,7 +38,8 @@ class WaylandProtocolsConan(ConanFile):
 
     def generate(self):
         tc = MesonToolchain(self)
-        tc.project_options["datadir"] = os.path.join(self.package_folder, "res")
+        # Using relative folder because of this https://github.com/conan-io/conan/pull/15706
+        tc.project_options["datadir"] = "res"
         tc.project_options["tests"] = "false"
         tc.generate()
         virtual_build_env = VirtualBuildEnv(self)
