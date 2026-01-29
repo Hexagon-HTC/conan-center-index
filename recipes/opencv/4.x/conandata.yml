@@ -51,6 +51,9 @@ patches:
       patch_description: "MinGW: disable obsensor to avoid build issue"
       patch_type: "portability"
       patch_source: "https://github.com/opencv/opencv/pull/24478"
+    - patch_file: "patches/4.8.1-0003-fix-visibility.patch"
+      patch_description: "Changed any cast to use not unique type_info to make sure tested type matches the type stored in any"
+      patch_type: "HXGN-CV"
   "4.6.0":
     - patch_file: "patches/4.5.5-0001-find-openexr.patch"
       patch_description: "Robust discovery & injection of OpenEXR"
