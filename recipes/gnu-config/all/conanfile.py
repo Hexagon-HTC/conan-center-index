@@ -2,6 +2,8 @@ from conan import ConanFile
 from conan.errors import ConanException
 from conan.tools.files import copy, get, load, save, apply_conandata_patches, export_conandata_patches
 from conan.tools.layout import basic_layout
+from conan.tools.scm import Git
+
 import os
 
 required_conan_version = ">=1.52.0"
@@ -27,7 +29,8 @@ class GnuConfigConan(ConanFile):
         self.info.clear()
 
     def source(self):
-        get(self, **self.conan_data["sources"][self.version], strip_root=True)
+        git = Git(self)
+        git.fetch_commit(**self.conan_data["sources"][self.version])
 
     def build(self):
         apply_conandata_patches(self)
