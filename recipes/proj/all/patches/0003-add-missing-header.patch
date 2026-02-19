@@ -1,0 +1,72 @@
+diff --git a/src/proj_json_streaming_writer.cpp b/src/proj_json_streaming_writer.cpp
+index d8b93c26..4541da29 100644
+--- a/src/proj_json_streaming_writer.cpp
++++ b/src/proj_json_streaming_writer.cpp
+@@ -31,6 +31,7 @@
+ #include <limits>
+ #include <vector>
+ #include <string>
++#include <cstdint>
+ 
+ #include "proj_json_streaming_writer.hpp"
+ 
+@@ -121,7 +122,7 @@ std::string CPLJSonStreamingWriter::FormatString(const std::string& str)
+             case '\n': ret += "\\n";  break;
+             case '\r': ret += "\\r";  break;
+             case '\t': ret += "\\t";  break;
+-            default: 
++            default:
+                 if( static_cast<unsigned char>(ch) < ' ' )
+                     ret += CPLSPrintf("\\u%04X", ch);
+                 else
+diff --git a/src/proj_json_streaming_writer.hpp b/src/proj_json_streaming_writer.hpp
+index 62676842..163da430 100644
+--- a/src/proj_json_streaming_writer.hpp
++++ b/src/proj_json_streaming_writer.hpp
+@@ -33,6 +33,7 @@
+ 
+ #include <vector>
+ #include <string>
++#include <cstdint>
+ 
+ #define CPL_DLL
+ 
+diff --git a/src/projections/s2.cpp b/src/projections/s2.cpp
+index 0de54c00..48385937 100644
+--- a/src/projections/s2.cpp
++++ b/src/projections/s2.cpp
+@@ -52,6 +52,7 @@
+ 
+ #include <errno.h>
+ #include <cmath>
++#include <cstdint>
+ 
+ #include "proj.h"
+ #include "proj_internal.h"
+@@ -112,7 +113,7 @@ static int LargestAbsComponent(const PJ_XYZ& p) {
+ }
+ 
+ // =================================================
+-// 
++//
+ //              S2 Projection Functions
+ //
+ // =================================================
+@@ -309,7 +310,7 @@ static PJ_XY s2_forward (PJ_LP lp, PJ *P) {
+     return {s, t};
+ }
+ 
+-static PJ_LP s2_inverse (PJ_XY xy, PJ *P) {     
++static PJ_LP s2_inverse (PJ_XY xy, PJ *P) {
+     PJ_LP lp = {0.0,0.0};
+     struct pj_opaque *Q = static_cast<struct pj_opaque*>(P->opaque);
+ 
+@@ -326,7 +327,7 @@ static PJ_LP s2_inverse (PJ_XY xy, PJ *P) {
+     // Get the spherical angles from the x y z
+     lp.phi = acos(-s) - M_HALFPI;
+     lp.lam = atan2(r, q);
+-    
++
+     /* Apply the shift from the sphere to the ellipsoid as described
+      * in [LK12]. */
+     if (P->es != 0.0) {

@@ -56,6 +56,9 @@ patches:
     - patch_file: "patches/0001-use-cmake-targets-9.1.0.patch"
       patch_type: "conan"
       patch_description: "Use cmake targets"
+    - patch_file: "patches/0003-add-missing-header.patch"
+      patch_type: "HXGN-CV"
+      patch_description: "Add missing header"
   "9.0.1":
     - patch_file: "patches/0001-use-cmake-targets-9.0.1.patch"
       patch_type: "conan"
