@@ -1037,13 +1037,13 @@ class BoostConan(ConanFile):
 
         if self.options.visibility == 'hidden' and not self.options.shared:
             # below flag was added based on https://github.com/boostorg/config/commit/ea089019846500a154e51a1857cfb281c5036e87 commit
-            # but with additional fix. Setting this flag makes BOOST_SYMBOL_IMPORT to be defined but empty. Further, on Windows, this 
-            # flag is used to set BOOST_WINAPI_IMPORT and BOOST_WINAPI_IMPORT_EXCEPT_WM. Unfortunately this causes linker problem when 
-            # symbols doesn't have the same visibility as used in winapi. To fix this issue we hardcode BOOST_WINAPI_IMPORT and 
+            # but with additional fix. Setting this flag makes BOOST_SYMBOL_IMPORT to be defined but empty. Further, on Windows, this
+            # flag is used to set BOOST_WINAPI_IMPORT and BOOST_WINAPI_IMPORT_EXCEPT_WM. Unfortunately this causes linker problem when
+            # symbols doesn't have the same visibility as used in winapi. To fix this issue we hardcode BOOST_WINAPI_IMPORT and
             # BOOST_WINAPI_IMPORT_EXCEPT_WM to be always __declspec(dllimport).
             # Also definition of BOOST_DISABLE_EXPLICIT_SYMBOL_VISIBILITY causes BOOST_HAS_DECLSPEC to be undefined. BOOST_HAS_DECLSPEC flag
-            # is marked as deprecated, but boost uses it in serialization module to force eporting symbols with BOOST_DLLEXPORT - see 
-            # force_include.hpp in boost/serialization. 
+            # is marked as deprecated, but boost uses it in serialization module to force eporting symbols with BOOST_DLLEXPORT - see
+            # force_include.hpp in boost/serialization.
             flags.append("define=BOOST_DISABLE_EXPLICIT_SYMBOL_VISIBILITY")
 
         flags.append(f"link={'shared' if self._shared else 'static'}")
@@ -1068,7 +1068,8 @@ class BoostConan(ConanFile):
         # CXX FLAGS
         cxx_flags = []
         # fPIC DEFINITION
-        if self._fPIC:
+        if self._fPIC and not is_msvc(self) and not self._is_clang_cl:
+            self.output.info("Adding -fPIC flag for non-MSVC compiler")
             cxx_flags.append("-fPIC")
         if self.settings.build_type == "RelWithDebInfo":
             if self.settings.compiler == "gcc" or "clang" in str(self.settings.compiler):
@@ -1146,8 +1147,9 @@ class BoostConan(ConanFile):
         if self.options.get_safe("addr2line_location"):
             cxx_flags.append(f"-DBOOST_STACKTRACE_ADDR2LINE_LOCATION={self.options.addr2line_location}")
 
-        cxx_flags = f'cxxflags="{" ".join(cxx_flags)}"'
-        flags.append(cxx_flags)
+        if cxx_flags:
+            cxx_flags_str = f'cxxflags="{" ".join(cxx_flags)}"'
+            flags.append(cxx_flags_str)
 
         if self.options.buildid:
             flags.append(f"--buildid={self.options.buildid}")

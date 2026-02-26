@@ -67,6 +67,9 @@ patches:
     - patch_file: "patches/1.82.0-locale-iconv-library-option.patch"
       patch_description: "Optional flag to specify iconv from either libc of libiconv"
       patch_type: "conan"
+    - patch_file: "patches/1.83.0-0001-allow-to-hide-symbols.patch"
+      patch_description: "Added possibility to hide all symbols."
+      patch_type: "HxGN-TC-CV"
   "1.82.0":
     - patch_file: "patches/1.82.0-locale-iconv-library-option.patch"
       patch_description: "Optional flag to specify iconv from either libc of libiconv"
