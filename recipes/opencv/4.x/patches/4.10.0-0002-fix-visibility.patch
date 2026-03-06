@@ -1,0 +1,25 @@
+diff --git a/modules/core/include/opencv2/core/cvdef.h b/modules/core/include/opencv2/core/cvdef.h
+index 748ecb9ece..91f1043765 100644
+--- a/modules/core/include/opencv2/core/cvdef.h
++++ b/modules/core/include/opencv2/core/cvdef.h
+@@ -426,7 +426,7 @@ Cv64suf;
+ #ifndef CV_EXPORTS
+ # if (defined _WIN32 || defined WINCE || defined __CYGWIN__) && defined(CVAPI_EXPORTS)
+ #   define CV_EXPORTS __declspec(dllexport)
+-# elif defined __GNUC__ && __GNUC__ >= 4 && (defined(CVAPI_EXPORTS) || defined(__APPLE__))
++# elif defined __GNUC__ && __GNUC__ >= 4 && defined(CVAPI_EXPORTS)
+ #   define CV_EXPORTS __attribute__ ((visibility ("default")))
+ # endif
+ #endif
+diff --git a/modules/flann/include/opencv2/flann/any.h b/modules/flann/include/opencv2/flann/any.h
+index 2228bd1cfc..b593c01dc6 100644
+--- a/modules/flann/include/opencv2/flann/any.h
++++ b/modules/flann/include/opencv2/flann/any.h
+@@ -18,6 +18,7 @@
+ #include <stdexcept>
+ #include <ostream>
+ #include <typeinfo>
++#include <typeindex>
+ 
+ #include "opencv2/core/cvdef.h"
+ #include "opencv2/core/utility.hpp"
