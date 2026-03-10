@@ -1,8 +1,8 @@
 diff --git a/modules/core/include/opencv2/core/cvdef.h b/modules/core/include/opencv2/core/cvdef.h
-index 748ecb9ece..91f1043765 100644
+index 99cd66f8cc..f601b5a80d 100644
 --- a/modules/core/include/opencv2/core/cvdef.h
 +++ b/modules/core/include/opencv2/core/cvdef.h
-@@ -426,7 +426,7 @@ Cv64suf;
+@@ -418,7 +418,7 @@ Cv64suf;
  #ifndef CV_EXPORTS
  # if (defined _WIN32 || defined WINCE || defined __CYGWIN__) && defined(CVAPI_EXPORTS)
  #   define CV_EXPORTS __declspec(dllexport)
