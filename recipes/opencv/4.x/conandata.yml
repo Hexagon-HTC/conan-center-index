@@ -64,6 +64,9 @@ patches:
       patch_description: "Add missing includes in gapi module"
       patch_type: "portability"
       patch_source: "HXGN-CV"
+    - patch_file: "patches/4.10.0-0003-revert-inpaint-to-4.8.1.patch"
+      patch_description: "Revert inpaint to 4.8.1 to fix orthophoto holes filling issue"
+      patch_type: "HXGN-CV"
   "4.9.0":
     - patch_file: "patches/4.5.5-0001-find-openexr.patch"
       patch_description: "Robust discovery & injection of OpenEXR"
