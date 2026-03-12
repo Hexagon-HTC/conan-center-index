@@ -80,6 +80,8 @@ class QhullConan(ConanFile):
 
         # TODO: back to global scope once cmake_find_package* generators removed
         self.cpp_info.components["libqhull"].libs = [self._qhull_lib_name]
+        self.cpp_info.components["libqhullcpp"].libs = [self._qhullcpp_lib_name]
+        self.cpp_info.components["libqhullcpp"].requires = ["libqhull"]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.components["libqhull"].system_libs.append("m")
         if is_msvc(self) and self.options.shared:
@@ -94,6 +96,11 @@ class QhullConan(ConanFile):
         self.cpp_info.components["libqhull"].names["pkg_config"] = self._qhull_pkgconfig_name
         self.cpp_info.components["libqhull"].set_property("cmake_target_name", f"Qhull::{self._qhull_cmake_name}")
         self.cpp_info.components["libqhull"].set_property("pkg_config_name", self._qhull_pkgconfig_name)
+        self.cpp_info.components["libqhullcpp"].names["cmake_find_package"] = "qhullcpp"
+        self.cpp_info.components["libqhullcpp"].names["cmake_find_package_multi"] = "qhullcpp"
+        self.cpp_info.components["libqhullcpp"].names["pkg_config"] = "qhullcpp"
+        self.cpp_info.components["libqhullcpp"].set_property("cmake_target_name", "Qhull::qhullcpp")
+        self.cpp_info.components["libqhullcpp"].set_property("pkg_config_name", "qhullcpp")
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
 
     @property
@@ -125,4 +132,11 @@ class QhullConan(ConanFile):
                 name += "r"
             if self.settings.build_type == "Debug":
                 name += "d"
+        return name
+
+    @property
+    def _qhullcpp_lib_name(self):
+        name = "qhullcpp"
+        if self.settings.build_type == "Debug":
+            name += "_d"
         return name
