@@ -6,8 +6,8 @@ from conan.tools.files import copy, get, rmdir
 from conan.tools.layout import basic_layout
 from conan.tools.meson import Meson, MesonToolchain
 from conan.tools.scm import Version
+from conan.tools.microsoft import is_msvc
 import os
-
 
 required_conan_version = ">=1.52.0"
 
@@ -65,13 +65,28 @@ class DirectXHeadersConan(ConanFile):
 
     def build(self):
         meson = Meson(self)
-        meson.configure()
+		# Calling configure ends with error on docker with v143:
+        # ..\..\source\meson.build:4:0: ERROR: prefix value '/' must be an absolute path
+        # conan meson tool was rewritten in conan 2.x and they added prefix option to set before configure (it should be changed when we upgrade to conan 2.x)
+        # for now we calling meson configure manually in case of MSVC
+        if is_msvc(self):
+            native_file = os.path.join(self.build_folder, "conan", "conan_meson_native.ini")
+            self.run(f"meson setup --native-file {native_file} {self.build_folder} {self.source_folder} --prefix={self.package_folder}")
+        else:
+            meson.configure()
         meson.build()
 
     def package(self):
         copy(self, "LICENSE", self.source_folder, os.path.join(self.package_folder, "licenses"))
         meson = Meson(self)
-        meson.install()
+
+        if is_msvc(self):
+            meson_build_folder = self.build_folder.replace("\\", "/")
+            cmd = f'meson install -C "{meson_build_folder}" --destdir /'
+            self.run(cmd)
+        else:
+            meson.install()
+
         rmdir(self, os.path.join(self.package_folder, "lib", "pkgconfig"))
 
     def package_info(self):
