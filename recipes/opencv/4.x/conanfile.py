@@ -1419,6 +1419,7 @@ class OpenCVConan(ConanFile):
             tc.variables["VULKAN_INCLUDE_DIRS"] = os.path.join(self.dependencies["vulkan-headers"].package_folder, "include").replace("\\", "/")
         tc.variables["WITH_XIMEA"] = False
         tc.variables["WITH_XINE"] = False
+        tc.variables["OBSENSOR_USE_ORBBEC_SDK"] = False
 
         tc.variables["WITH_GTK"] = self.options.get_safe("with_gtk", False)
         tc.variables["WITH_GTK_2_X"] = self._is_gtk_version2
