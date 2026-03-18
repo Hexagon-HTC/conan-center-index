@@ -70,6 +70,11 @@ patches:
     - patch_file: "patches/4.10.0-0004-revert-cap_avfoundation.mm-to-4.8.1.patch"
       patch_description: "Revert avfoundation to 4.8.1"
       patch_type: "HXGN-CV"
+    - patch_file: "patches/4.10.0-0005-Set-using-Orbbec-SDK-on-MacOS-OFF-by-default.patch"
+      patch_description: "Set using Orbbec SDK on MacOS OFF by default"
+      patch_type: "HXGN-CV"
+      patch_source: "https://github.com/opencv/opencv/pull/25845"
+
   "4.9.0":
     - patch_file: "patches/4.5.5-0001-find-openexr.patch"
       patch_description: "Robust discovery & injection of OpenEXR"
