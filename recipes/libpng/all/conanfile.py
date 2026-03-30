@@ -108,7 +108,10 @@ class LibpngConan(ConanFile):
         tc.cache_variables["PNG_STATIC"] = not self.options.shared
         tc.cache_variables["PNG_DEBUG"] = self.settings.build_type == "Debug"
         tc.cache_variables["PNG_PREFIX"] = self.options.api_prefix
-        if Version(self.version) < "1.6.38":
+        if Version(self.version) >= "1.6.41":
+            tc.variables["PNG_FRAMEWORK"] = False  # changed from False to True by default in PNG 1.6.41
+            tc.variables["PNG_TOOLS"] = False
+        elif Version(self.version) < "1.6.38":
             tc.cache_variables["CMAKE_PROJECT_libpng_INCLUDE"] = os.path.join(self.source_folder, "conan_cmake_project_include.cmake")
         if self._has_neon_support:
             tc.variables["PNG_ARM_NEON"] = self._neon_msa_sse_vsx_mapping[str(self.options.neon)]
