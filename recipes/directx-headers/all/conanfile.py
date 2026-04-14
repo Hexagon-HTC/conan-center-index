@@ -78,7 +78,7 @@ class DirectXHeadersConan(ConanFile):
     def package_info(self):
         if self.settings.os == "Linux" or self.settings.get_safe("os.subsystem") == "wsl":
             self.cpp_info.includedirs.append(os.path.join("include", "wsl", "stubs"))
-        self.cpp_info.libs = ["d3dx12-format-properties", "DirectX-Guids"]
+        self.cpp_info.libs = ["DirectX-Headers", "DirectX-Guids"]
         self.cpp_info.set_property("cmake_file_name", "DirectX-Headers")
         self.cpp_info.set_property("cmake_target_name", "Microsoft::DirectX-Headers")
         self.cpp_info.set_property("pkg_config_name", "DirectX-Headers")
