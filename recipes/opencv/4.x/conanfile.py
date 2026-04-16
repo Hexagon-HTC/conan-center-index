@@ -1073,7 +1073,7 @@ class OpenCVConan(ConanFile):
         elif self.options.get_safe("with_jpeg2000") == "openjpeg":
             self.requires("openjpeg/[>=2.5.2 <5]")
         if self.options.get_safe("with_png"):
-            self.requires("libpng/[>=1.6 <2]")
+            self.requires("libpng/1.6.53")
         if self.options.get_safe("with_openexr"):
             self.requires("openexr/[>=3.2.3 <4]")
         if self.options.get_safe("with_tiff"):

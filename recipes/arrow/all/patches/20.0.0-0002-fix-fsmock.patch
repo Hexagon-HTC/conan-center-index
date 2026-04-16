@@ -1,0 +1,47 @@
+diff --git a/cpp/src/arrow/filesystem/mockfs.cc b/cpp/src/arrow/filesystem/mockfs.cc
+index 8eff8ecc2f..296370ff4d 100644
+--- a/cpp/src/arrow/filesystem/mockfs.cc
++++ b/cpp/src/arrow/filesystem/mockfs.cc
+@@ -102,18 +102,11 @@ struct Directory {
+     }
+   }
+ 
+-  bool CreateEntry(const std::string& s, std::unique_ptr<Entry> entry) {
+-    DCHECK(!s.empty());
+-    auto p = entries.emplace(s, std::move(entry));
+-    return p.second;
+-  }
++  bool CreateEntry(const std::string& s, std::unique_ptr<Entry> entry);
+ 
+-  void AssignEntry(const std::string& s, std::unique_ptr<Entry> entry) {
+-    DCHECK(!s.empty());
+-    entries[s] = std::move(entry);
+-  }
++  void AssignEntry(const std::string& s, std::unique_ptr<Entry> entry);
+ 
+-  bool DeleteEntry(const std::string& s) { return entries.erase(s) > 0; }
++  bool DeleteEntry(const std::string& s);
+ 
+  private:
+   ARROW_DISALLOW_COPY_AND_ASSIGN(Directory);
+@@ -187,6 +180,20 @@ class Entry : public EntryBase {
+   ARROW_DISALLOW_COPY_AND_ASSIGN(Entry);
+ };
+ 
++// Directory method implementations (require complete Entry type)
++bool Directory::CreateEntry(const std::string& s, std::unique_ptr<Entry> entry) {
++  DCHECK(!s.empty());
++  auto p = entries.emplace(s, std::move(entry));
++  return p.second;
++}
++
++void Directory::AssignEntry(const std::string& s, std::unique_ptr<Entry> entry) {
++  DCHECK(!s.empty());
++  entries[s] = std::move(entry);
++}
++
++bool Directory::DeleteEntry(const std::string& s) { return entries.erase(s) > 0; }
++
+ ////////////////////////////////////////////////////////////////////////////
+ // Streams
+ 

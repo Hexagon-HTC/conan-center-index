@@ -1,0 +1,14 @@
+diff --git a/modules/gapi/src/compiler/gislandmodel.hpp b/modules/gapi/src/compiler/gislandmodel.hpp
+index 3a1a8d5ab9..755f533ddb 100644
+--- a/modules/gapi/src/compiler/gislandmodel.hpp
++++ b/modules/gapi/src/compiler/gislandmodel.hpp
+@@ -10,6 +10,9 @@
+
+ #include <unordered_set>
+ #include <memory>        // shared_ptr
++#include <exception>     // exception_ptr
++#include <string>        // string
++#include <cstddef>       // size_t
+
+ #include <ade/graph.hpp>
+ #include <ade/typed_graph.hpp>

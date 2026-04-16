@@ -31,6 +31,7 @@ patches:
     - patch_file: "patches/21.0.0-0002-fix-msvc-arm64.patch"
   "20.0.0":
     - patch_file: "patches/20.0.0-0001-fix-downloaded-mimalloc.patch"
+    - patch_file: "patches/20.0.0-0002-fix-fsmock.patch"
   "19.0.1":
     - patch_file: "patches/19.0.1-0001-fix-cmake.patch"
     - patch_file: "patches/19.0.1-0002-fix-downloaded-mimalloc.patch"
