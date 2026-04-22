@@ -1,0 +1,19 @@
+diff --git a/common/m4/lib/regex.h b/common/m4/lib/regex.h
+index 0561010..f63a672 100644
+--- a/common/m4/lib/regex.h
++++ b/common/m4/lib/regex.h
+@@ -630,9 +630,12 @@ extern int re_exec (const char *);
+      array_name[restrict]
+    use glibc's __restrict_arr if available.
+    Otherwise, GCC 3.1 and clang support this syntax (but not in C++ mode).
+-   Other ISO C99 compilers support it as well.  */
++   Other ISO C99 compilers support it as well.
++   MSVC does not support this syntax at all.  */
+ #ifndef _Restrict_arr_
+-# ifdef __restrict_arr
++# if defined _MSC_VER
++#  define _Restrict_arr_
++# elif defined __restrict_arr
+ #  define _Restrict_arr_ __restrict_arr
+ # elif ((199901L <= __STDC_VERSION__ \
+          || 3 < __GNUC__ + (1 <= __GNUC_MINOR__) \
