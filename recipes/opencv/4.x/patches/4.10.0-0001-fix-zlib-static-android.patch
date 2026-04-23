@@ -1,6 +1,8 @@
+diff --git a/cmake/OpenCVFindLibsGrfmt.cmake b/cmake/OpenCVFindLibsGrfmt.cmake
+index 04755c4c2c..e472ea7c73 100644
 --- a/cmake/OpenCVFindLibsGrfmt.cmake
 +++ b/cmake/OpenCVFindLibsGrfmt.cmake
-@@ -20,12 +20,12 @@ if(BUILD_ZLIB)
+@@ -20,12 +20,12 @@ else()
      ocv_clear_vars(ZLIB_FOUND)
    else()
      ocv_clear_internal_cache_vars(ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
@@ -15,3 +17,30 @@
      set(CMAKE_FIND_LIBRARY_SUFFIXES ${_zlib_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
      unset(_zlib_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES)
    endif()
+@@ -157,7 +157,10 @@ if(WITH_WEBP)
+     ocv_clear_vars(WEBP_FOUND WEBP_LIBRARY WEBP_LIBRARIES WEBP_INCLUDE_DIR)
+   else()
+     ocv_clear_internal_cache_vars(WEBP_LIBRARY WEBP_INCLUDE_DIR)
+-    include(cmake/OpenCVFindWebP.cmake)
++    find_package(WebP CONFIG)
++    if(WebP_FOUND)
++      set(WEBP_FOUND 1)
++    endif()
+     if(WEBP_FOUND)
+       set(HAVE_WEBP 1)
+     endif()
+diff --git a/modules/videoio/cmake/detect_obsensor.cmake b/modules/videoio/cmake/detect_obsensor.cmake
+index cf5a9063a9..f0b66015eb 100644
+--- a/modules/videoio/cmake/detect_obsensor.cmake
++++ b/modules/videoio/cmake/detect_obsensor.cmake
+@@ -1,10 +1,5 @@
+ # --- obsensor ---
+ if(NOT HAVE_OBSENSOR)
+-  if(APPLE)
+-    # force to use orbbec sdk on mac
+-    set(OBSENSOR_USE_ORBBEC_SDK ON)
+-  endif()
+-
+   if(OBSENSOR_USE_ORBBEC_SDK)
+     include(${CMAKE_SOURCE_DIR}/3rdparty/orbbecsdk/orbbecsdk.cmake)
+     download_orbbec_sdk(ORBBEC_SDK_ROOT_DIR)
