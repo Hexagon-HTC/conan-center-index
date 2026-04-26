@@ -4,6 +4,10 @@ sources:
     sha256: "8774e9a12c70b0180b95d6b0b563c5aa4bea8d5960c15e18ae3b6d2521d64f8b"
 patches:
   "8.0.2":
-    - patch_file: "patches/0001-fix-cmake.patch"
-      patch_description: "Fix cmake_minimum_required() to provide CMake 4 support and avoid hardcoding rpath"
-    - patch_file: "patches/0002-cpp20-fixes.patch"
+    - patch_file: "patches/0005-fix-cxx20-cxx23.patch"
+      patch_description: "Fix C++20 and C++23 compatibility issues"
+      patch_type: "backport"
+      patch_source: "https://github.com/qhull/qhull/commit/bdd99371b995e02d6b39acc93221c477aafd284a"
+    - patch_file: "patches/0006-fix-cmake.patch"
+      patch_description: "Fix CMake configuration issues"
+      patch_type: "HXGN-CV"
