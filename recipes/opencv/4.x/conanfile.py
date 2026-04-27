@@ -345,12 +345,6 @@ class OpenCVConan(ConanFile):
         def eigen():
             return ["eigen::eigen"] if self.options.with_eigen else []
 
-        def ffmpeg():
-            components = []
-            if self.options.get_safe("with_ffmpeg"):
-                components = ["ffmpeg::avcodec", "ffmpeg::avformat", "ffmpeg::avutil", "ffmpeg::swscale"]
-            return components
-
         def gtk():
             return ["gtk::gtk"] if self.options.get_safe("with_gtk") else []
 
@@ -454,9 +448,11 @@ class OpenCVConan(ConanFile):
                     (self.settings.os == "Android", ["dl", "m", "log"]),
                     (self.settings.os == "FreeBSD", ["m", "pthread"]),
                     (self.settings.os == "Linux", ["dl", "m", "pthread", "rt"]),
+                    (self.options.with_cuda == True, ["cudart"]),
                 ],
                 "frameworks": [
                     (self.settings.os == "Macos" and self.options.get_safe("with_opencl"), ["OpenCL"]),
+                    (self.settings.os == "Macos", ["Accelerate"]),
                 ],
             },
             "dnn": {
@@ -536,12 +532,13 @@ class OpenCVConan(ConanFile):
             "videoio": {
                 "is_built": self.options.videoio,
                 "mandatory_options": ["imgcodecs", "imgproc"],
-                "requires": ["opencv_imgcodecs", "opencv_imgproc"] + ffmpeg() + ipp(),
+                "requires": ["opencv_imgcodecs", "opencv_imgproc"] + ipp(),
                 "system_libs": [
-                    (self.settings.os == "Android" and int(str(self.settings.os.api_level)) > 20, ["mediandk"]),
+                    (self.settings.os == "Android" and int(str(self.settings.os.api_level)) > 20, ["mediandk", "android", "log", "camera2ndk"]),
+                    (self.settings.os == "Linux" and self.options.with_ffmpeg, ["avutil", "avcodec", "avformat", "swscale"]),
                 ],
                 "frameworks": [
-                    (is_apple_os(self), ["Accelerate", "AVFoundation", "CoreGraphics", "CoreMedia", "CoreVideo", "QuartzCore"]),
+                    (is_apple_os(self), ["Accelerate", "Foundation", "AVFoundation", "CoreGraphics", "CoreMedia", "CoreVideo", "QuartzCore"]),
                     (self.settings.os == "iOS", ["CoreImage", "UIKit"]),
                     (self.settings.os == "Macos", ["Cocoa"]),
                 ],
@@ -1087,9 +1084,6 @@ class OpenCVConan(ConanFile):
         # objdetect module dependencies
         if self.options.get_safe("with_quirc"):
             self.requires("quirc/1.2")
-        # videoio module dependencies
-        if self.options.get_safe("with_ffmpeg"):
-            self.requires("ffmpeg/[>=4.4.4 <8]")
         # freetype module dependencies
         if self.options.freetype:
             self.requires("freetype/[>=2.13.2 <3]")
@@ -1199,10 +1193,6 @@ class OpenCVConan(ConanFile):
         replace_in_file(self, os.path.join(self.source_folder, "modules", "imgcodecs", "CMakeLists.txt"), "JASPER_", "Jasper_")
         replace_in_file(self, os.path.join(self.source_folder, "modules", "imgcodecs", "CMakeLists.txt"), "${GDAL_LIBRARY}", "GDAL::GDAL")
         replace_in_file(self, os.path.join(self.source_folder, "modules", "imgcodecs", "CMakeLists.txt"), "${AVIF_LIBRARY}", "avif")
-
-        ## Fix detection of ffmpeg
-        replace_in_file(self, os.path.join(self.source_folder, "modules", "videoio", "cmake", "detect_ffmpeg.cmake"),
-                        "FFMPEG_FOUND", "ffmpeg_FOUND")
 
         ## Robust handling of wayland
         if self.options.get_safe("with_wayland"):
@@ -1324,21 +1314,6 @@ class OpenCVConan(ConanFile):
         tc.variables["WITH_NVCUVID"] = False
 
         tc.variables["WITH_FFMPEG"] = self.options.get_safe("with_ffmpeg", False)
-        if self.options.get_safe("with_ffmpeg"):
-            tc.variables["OPENCV_FFMPEG_SKIP_BUILD_CHECK"] = True
-            tc.variables["OPENCV_FFMPEG_SKIP_DOWNLOAD"] = True
-            # opencv will not search for ffmpeg package, but for
-            # libavcodec;libavformat;libavutil;libswscale modules
-            tc.variables["OPENCV_FFMPEG_USE_FIND_PACKAGE"] = "ffmpeg"
-            tc.variables["OPENCV_INSTALL_FFMPEG_DOWNLOAD_SCRIPT"] = False
-            tc.variables["OPENCV_FFMPEG_ENABLE_LIBAVDEVICE"] = False
-            ffmpeg_libraries = []
-            for component in ["avcodec",  "avformat", "avutil", "swscale", "avresample"]:
-                if component == "avutil" or self.dependencies["ffmpeg"].options.get_safe(component):
-                    ffmpeg_libraries.append(f"ffmpeg::{component}")
-                    ffmpeg_component_version = self.dependencies["ffmpeg"].cpp_info.components[component].get_property("component_version")
-                    tc.variables[f"FFMPEG_lib{component}_VERSION"] = ffmpeg_component_version
-            tc.variables["FFMPEG_LIBRARIES"] = ";".join(ffmpeg_libraries)
 
         tc.variables["WITH_GSTREAMER"] = False
         tc.variables["WITH_HALIDE"] = False
@@ -1379,7 +1354,7 @@ class OpenCVConan(ConanFile):
             tc.variables["VULKAN_INCLUDE_DIRS"] = os.path.join(self.dependencies["vulkan-headers"].package_folder, "include").replace("\\", "/")
         tc.variables["WITH_XIMEA"] = False
         tc.variables["WITH_XINE"] = False
-        tc.variables["WITH_LAPACK"] = False
+        tc.variables["OBSENSOR_USE_ORBBEC_SDK"] = False
 
         tc.variables["WITH_GTK"] = self.options.get_safe("with_gtk", False)
         tc.variables["WITH_GTK_2_X"] = False
@@ -1479,6 +1454,10 @@ class OpenCVConan(ConanFile):
         if self.settings.os == "Android":
             tc.variables["BUILD_ANDROID_EXAMPLES"] = False
         tc.cache_variables["CV_TRACE"] = False
+
+        if not is_msvc(self):
+            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+            tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
 
         tc.generate()
 
