@@ -105,7 +105,10 @@ class CeressolverConan(ConanFile):
             tc.cache_variables["LIB_SUFFIX"] = ""
         # IOS_DEPLOYMENT_TARGET variable was added to iOS.cmake file in 1.12.0 version
         if self.settings.os == "iOS":
-            tc.cache_variables["IOS_DEPLOYMENT_TARGET"] = self.settings.os.version
+            tc.variables["IOS_DEPLOYMENT_TARGET"] = self.settings.os.version
+            tc.variables["CMAKE_CXX_FLAGS"] = "-fomit-frame-pointer -fstrict-aliasing"
+            tc.variables["CMAKE_C_FLAGS"] = "-fomit-frame-pointer -fstrict-aliasing"
+
         tc.generate()
 
         deps = CMakeDeps(self)
@@ -144,8 +147,6 @@ class CeressolverConan(ConanFile):
     def package_info(self):
         self.cpp_info.set_property("cmake_file_name", "Ceres")
         self.cpp_info.set_property("cmake_target_name", "Ceres::ceres")
-        # see https://github.com/ceres-solver/ceres-solver/blob/2.2.0/cmake/CeresConfig.cmake.in#L334-L340
-        self.cpp_info.set_property("cmake_target_aliases", ["ceres"])
         self.cpp_info.set_property("cmake_build_modules", [self._module_variables_file_rel_path])
 
         libsuffix = ""
