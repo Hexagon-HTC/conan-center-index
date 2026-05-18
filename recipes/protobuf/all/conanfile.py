@@ -146,6 +146,10 @@ class ProtobufConan(ConanFile):
             tc.extra_exelinkflags.append("-Wl,--disable-new-dtags")
             tc.extra_sharedlinkflags.append("-Wl,--disable-new-dtags")
 
+        if not is_msvc(self):
+            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + tc.variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+            tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + tc.variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
+
         tc.generate()
 
         deps = CMakeDeps(self)
