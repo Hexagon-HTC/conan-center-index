@@ -1455,10 +1455,6 @@ class OpenCVConan(ConanFile):
             tc.variables["BUILD_ANDROID_EXAMPLES"] = False
         tc.cache_variables["CV_TRACE"] = False
 
-        if not is_msvc(self):
-            tc.cache_variables["CMAKE_CXX_FLAGS"] = tc.cache_variables.get("CMAKE_CXX_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
-            tc.cache_variables["CMAKE_C_FLAGS"] = tc.cache_variables.get("CMAKE_C_FLAGS", "") + " -fvisibility=hidden -fvisibility-inlines-hidden"
-
         tc.generate()
 
         CMakeDeps(self).generate()
