@@ -1,0 +1,32 @@
+diff --git a/modules/videoio/src/cap_avfoundation.mm b/modules/videoio/src/cap_avfoundation.mm
+index 2bad9cc99c..e7352eca01 100644
+--- a/modules/videoio/src/cap_avfoundation.mm
++++ b/modules/videoio/src/cap_avfoundation.mm
+@@ -765,13 +765,23 @@ CvCaptureFile::CvCaptureFile(const char* filename) {
+ // Available since iOS 15
+ #if TARGET_OS_VISION || (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 150000)
+     if (@available(iOS 15, *)) {
++        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
++        __block NSArray<AVAssetTrack *> *loadedTracks = nil;
+         [mAsset loadTracksWithMediaType:AVMediaTypeVideo completionHandler:^(NSArray<AVAssetTrack *>* tracks, NSError* err) {
+-            if (err != nil) {
+-                handleTracks(tracks, filename);
++            if (err == nil) {
++                loadedTracks = [tracks retain];
+             }
+-            [localpool drain];
++            dispatch_semaphore_signal(semaphore);
+         }];
+-        return;
++        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
++        dispatch_release(semaphore);
++        if (loadedTracks != nil) {
++            handleTracks(loadedTracks, filename);
++            [loadedTracks release];
++        } else {
++            fprintf(stderr, "OpenCV: Couldn't read video stream from file \"%s\"\n", filename);
++            started = 0;
++        }
+     } else {
+ #if !TARGET_OS_VISION
+         NSArray *tracks = [mAsset tracksWithMediaType:AVMediaTypeVideo];

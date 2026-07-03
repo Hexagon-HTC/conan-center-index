@@ -72,6 +72,9 @@ patches:
     - patch_file: "patches/4.10.0-0002-fix-visibility.patch"
       patch_description: "Changed any cast to use not unique type_info to make sure tested type matches the type stored in any"
       patch_type: "HXGN-CV"
+    - patch_file: "patches/4.12.0-0003-fix-ios-avfoundation-async.patch"
+      patch_description: "Fix AVFoundation backend on iOS Simulator: inverted error condition and async constructor returning before callback fires (https://github.com/opencv/opencv/issues/28666)"
+      patch_type: "HXGN-CV"
   "4.10.0":
     - patch_file: "patches/4.5.5-0001-find-openexr.patch"
       patch_description: "Robust discovery & injection of OpenEXR"

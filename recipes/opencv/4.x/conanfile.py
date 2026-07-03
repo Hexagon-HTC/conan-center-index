@@ -539,7 +539,7 @@ class OpenCVConan(ConanFile):
                 ],
                 "frameworks": [
                     (is_apple_os(self), ["Accelerate", "Foundation", "AVFoundation", "CoreGraphics", "CoreMedia", "CoreVideo", "QuartzCore"]),
-                    (self.settings.os == "iOS", ["CoreImage", "UIKit"]),
+                    (self.settings.os == "iOS", ["Foundation", "CoreImage", "UIKit"]),
                     (self.settings.os == "Macos", ["Cocoa"]),
                 ],
             },
