@@ -1,0 +1,17 @@
+diff --git a/cmake/compilers/Clang.cmake b/cmake/compilers/Clang.cmake
+index 7ce4d46d..1d16ae4d 100644
+--- a/cmake/compilers/Clang.cmake
++++ b/cmake/compilers/Clang.cmake
+@@ -37,6 +37,12 @@ else()
+     set(TBB_TEST_COMPILE_FLAGS ${TBB_TEST_COMPILE_FLAGS} $<$<NOT:$<VERSION_LESS:${CMAKE_CXX_COMPILER_VERSION},10.0>>:-ffp-model=precise>)
+ endif()
+
++# Fix for Android NDK r29+ which adds -Wl,--no-undefined-version
++# We need to add --undefined-version after to override it
++if (ANDROID_PLATFORM)
++    string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--undefined-version")
++endif()
++
+ # Depfile options (e.g. -MD) are inserted automatically in some cases.
+ # Don't add -MMD to avoid conflicts in such cases.
+ if (NOT CMAKE_GENERATOR MATCHES "Ninja" AND NOT CMAKE_CXX_DEPENDS_USE_COMPILER)
