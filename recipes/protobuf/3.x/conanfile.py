@@ -111,6 +111,12 @@ class ProtobufConan(ConanFile):
             # is respected for transitive dependencies too
             tc.extra_exelinkflags.append("-Wl,--disable-new-dtags")
             tc.extra_sharedlinkflags.append("-Wl,--disable-new-dtags")
+
+        if not is_msvc(self):
+            tc.cache_variables["CMAKE_C_VISIBILITY_PRESET"] = "hidden"
+            tc.cache_variables["CMAKE_CXX_VISIBILITY_PRESET"] = "hidden"
+            tc.cache_variables["CMAKE_VISIBILITY_INLINES_HIDDEN"] = True
+
         tc.generate()
 
         deps = CMakeDeps(self)
