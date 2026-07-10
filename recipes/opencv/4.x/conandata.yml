@@ -75,6 +75,9 @@ patches:
     - patch_file: "patches/4.12.0-0003-fix-ios-avfoundation-async.patch"
       patch_description: "Fix AVFoundation backend on iOS Simulator: inverted error condition and async constructor returning before callback fires (https://github.com/opencv/opencv/issues/28666)"
       patch_type: "HXGN-CV"
+    - patch_file: "patches/4.12.0-0004-pin-ippicv-cv-compare.patch"
+      patch_description: "Pin x86_64 IPPICV to 2021.12.0 (as in 4.11.0) to avoid the ~4x cv::compare performance regression introduced by the 2022.1.0 IPPICV update (https://github.com/opencv/opencv/issues/28251)"
+      patch_type: "conan"
   "4.10.0":
     - patch_file: "patches/4.5.5-0001-find-openexr.patch"
       patch_description: "Robust discovery & injection of OpenEXR"

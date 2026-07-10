@@ -1,0 +1,37 @@
+diff --git a/3rdparty/ippicv/ippicv.cmake b/3rdparty/ippicv/ippicv.cmake
+index 5396bfe8f3..3738d28daf 100644
+--- a/3rdparty/ippicv/ippicv.cmake
++++ b/3rdparty/ippicv/ippicv.cmake
+@@ -2,7 +2,9 @@ function(download_ippicv root_var)
+   set(${root_var} "" PARENT_SCOPE)
+ 
+   # Commit SHA in the opencv_3rdparty repo
+-  set(IPPICV_COMMIT "767426b2a40a011eb2fa7f44c677c13e60e205ad")
++  # HXGN-CV: pin x86_64 IPPICV to 2021.12.0 (from 4.11.0) to avoid the ~4x
++  # cv::compare regression in the 2022.1.0 update (opencv/opencv#28251).
++  set(IPPICV_COMMIT "7f55c0c26be418d494615afca15218566775c725")
+   # Define actual ICV versions
+   if(APPLE)
+     set(IPPICV_COMMIT "0cc4aa06bf2bef4b05d237c69a5a96b9cd0cb85a")
+@@ -14,8 +16,8 @@ function(download_ippicv root_var)
+     set(OPENCV_ICV_PLATFORM "linux")
+     set(OPENCV_ICV_PACKAGE_SUBDIR "ippicv_lnx")
+     if(X86_64)
+-      set(OPENCV_ICV_NAME "ippicv_2022.1.0_lnx_intel64_20250130_general.tgz")
+-      set(OPENCV_ICV_HASH "98ff71fc242d52db9cc538388e502f57")
++      set(OPENCV_ICV_NAME "ippicv_2021.12.0_lnx_intel64_20240425_general.tgz")
++      set(OPENCV_ICV_HASH "d06e6d44ece88f7f17a6cd9216761186")
+     else()
+       if(ANDROID)
+         set(IPPICV_COMMIT "c7c6d527dde5fee7cb914ee9e4e20f7436aab3a1")
+@@ -31,8 +33,8 @@ function(download_ippicv root_var)
+     set(OPENCV_ICV_PLATFORM "windows")
+     set(OPENCV_ICV_PACKAGE_SUBDIR "ippicv_win")
+     if(X86_64)
+-      set(OPENCV_ICV_NAME "ippicv_2022.1.0_win_intel64_20250130_general.zip")
+-      set(OPENCV_ICV_HASH "67a611ab22410f392239bddff6f91df7")
++      set(OPENCV_ICV_NAME "ippicv_2021.12.0_win_intel64_20240425_general.zip")
++      set(OPENCV_ICV_HASH "402ff8c6b4986738fed71c44e1ce665d")
+     else()
+       set(IPPICV_COMMIT "7f55c0c26be418d494615afca15218566775c725")
+       set(OPENCV_ICV_NAME "ippicv_2021.12.0_win_ia32_20240425_general.zip")
