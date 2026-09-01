@@ -4,6 +4,7 @@ from conan.tools.build import check_min_cppstd, stdcpp_library
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.env import VirtualBuildEnv
 from conan.tools.files import apply_conandata_patches, export_conandata_patches, get, copy, rmdir, replace_in_file, collect_libs, rm, rename
+from conan.tools.microsoft import is_msvc
 from conan.tools.scm import Version
 import os
 
@@ -89,7 +90,10 @@ class ProjConan(ConanFile):
         tc.cache_variables["BUILD_TESTING"] = False
         tc.cache_variables["ENABLE_IPO"] = False
         tc.cache_variables["BUILD_PROJSYNC"] = self.options.build_executables and self.options.with_curl
-        tc.cache_variables["NLOHMANN_JSON_ORIGIN"] = "external"
+        if Version(self.version) >= "8.1.0":
+            tc.cache_variables["NLOHMANN_JSON_ORIGIN"] = "external"
+        if Version(self.version) < "9.1.0":
+            tc.cache_variables["PROJ_DATA_SUBDIR"] = "res"
         tc.cache_variables["CMAKE_MACOSX_BUNDLE"] = False
         if self.settings.os == "Linux":
             # Workaround for: https://github.com/conan-io/conan/issues/13560
@@ -116,11 +120,19 @@ class ProjConan(ConanFile):
             replace_in_file(self, cmakelists, "SQLITE3_VERSION", "SQLite3_VERSION")
             replace_in_file(self, cmakelists, "find_package(Sqlite3 REQUIRED)", "find_package(SQLite3 REQUIRED)")
 
+        # Let CMake install shared lib with a clean rpath !
+        if "7.1.0" <= Version(self.version) < "9.0.0":
+            replace_in_file(self, cmakelists, "set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)", "")
+
         # Aggressive workaround against SIP on macOS, to handle sqlite3 executable
         # linked to shared sqlite3 lib
         if is_apple_os(self):
-            cmake_sqlite_call = "generate_proj_db.cmake"
-            pattern = "\"${EXE_SQLITE3}\""
+            if Version(self.version) < "8.1.0":
+                cmake_sqlite_call = "CMakeLists.txt"
+                pattern = "${EXE_SQLITE3}"
+            else:
+                cmake_sqlite_call = "generate_proj_db.cmake"
+                pattern = "\"${EXE_SQLITE3}\""
 
             lib_paths = self.dependencies.build["sqlite3"].cpp_info.libdirs
             replace_in_file(self,
@@ -128,6 +140,10 @@ class ProjConan(ConanFile):
                 f"COMMAND {pattern}",
                 f"COMMAND ${{CMAKE_COMMAND}} -E env \"DYLD_LIBRARY_PATH={':'.join(lib_paths)}\" {pattern}"
             )
+
+        # unvendor nlohmann_json
+        if Version(self.version) < "8.1.0":
+            rmdir(self, os.path.join(self.source_folder, "include", "proj", "internal", "nlohmann"))
 
         # Remove warning flags that are unfamiliar to GCC 5
         if self.settings.compiler == "gcc" and Version(self.settings.compiler.version) < "8.0":
@@ -146,7 +162,8 @@ class ProjConan(ConanFile):
         cmake.install()
         # recover the data ... 9.1.0 saves into share/proj rather than res directly
         # the new PROJ_DATA_PATH can't seem to be controlled from conan.
-        rename(self, src=os.path.join(self.package_folder, "share", "proj"), dst=os.path.join(self.package_folder, "res"))
+        if Version(self.version) >= "9.1.0":
+            rename(self, src=os.path.join(self.package_folder, "share", "proj"), dst=os.path.join(self.package_folder, "res"))
         # delete the rest of the deployed data
         rmdir(self, os.path.join(self.package_folder, "share"))
         rmdir(self, os.path.join(self.package_folder, "lib", "cmake"))
@@ -175,11 +192,14 @@ class ProjConan(ConanFile):
             self.cpp_info.components["projlib"].requires.append("libtiff::libtiff")
         if self.options.with_curl:
             self.cpp_info.components["projlib"].requires.append("libcurl::libcurl")
-        if not self.options.shared:
+        if Version(self.version) < "8.2.0":
+            if self.options.shared and is_msvc(self):
+                self.cpp_info.components["projlib"].defines.append("PROJ_MSVC_DLL_IMPORT")
+        elif not self.options.shared:
             self.cpp_info.components["projlib"].defines.append("PROJ_DLL=")
 
         # see https://proj.org/usage/environmentvars.html#envvar-PROJ_DATA
-        proj_data_env_var_name = "PROJ_DATA"
+        proj_data_env_var_name = "PROJ_LIB" if Version(self.version) < "9.1.0" else "PROJ_DATA"
         res_path = os.path.join(self.package_folder, "res")
         self.runenv_info.prepend_path(proj_data_env_var_name, res_path)
         if self.options.build_executables:
