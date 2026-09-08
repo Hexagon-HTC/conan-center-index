@@ -4,6 +4,11 @@ sources:
     url:
       - "https://www.nasm.us/pub/nasm/releasebuilds/3.01/nasm-3.01.tar.xz"
       - "https://www.nasm.dev/pub/nasm/releasebuilds/3.01/nasm-3.01.tar.xz"
+  "2.16.03":
+    sha256: "1412a1c760bbd05db026b6c0d1657affd6631cd0a63cddb6f73cc6d4aa616148"
+    url:
+      - "https://www.nasm.us/pub/nasm/releasebuilds/2.16.03/nasm-2.16.03.tar.xz"
+      - "https://www.nasm.dev/pub/nasm/releasebuilds/2.16.03/nasm-2.16.03.tar.xz"
   "2.16.01":
     sha256: "c77745f4802375efeee2ec5c0ad6b7f037ea9c87c92b149a9637ff099f162558"
     url:
@@ -15,6 +20,8 @@ sources:
       - "https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.xz"
       - "https://www.nasm.dev/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.xz"
 patches:
+  "2.16.03":
+    - patch_file: "patches/2.16.03-0001-disable-newly-integrated-dependency-tracking.patch"
   "2.16.01":
     - patch_file: "patches/2.16.01-0001-disable-newly-integrated-dependency-tracking.patch"
   "2.15.05":
