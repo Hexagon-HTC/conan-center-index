@@ -1,7 +1,9 @@
-# List only the most recent 4.x version, and the most recent 3.x
-# older versions remain available in the Conan Center remote
+# Upstream lists only the most recent 4.x and the most recent 3.x version.
+# Additional versions below are pinned for internal consumers.
 versions:
   "4.4.2":
     folder: "binary"
   "3.31.12":
+    folder: "binary"
+  "3.28.3":
     folder: "binary"
