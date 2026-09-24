@@ -118,6 +118,8 @@ class GlogConan(ConanFile):
         self.cpp_info.libs = ["glog" + postfix]
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs = ["pthread"]
+        elif self.settings.os == "Android":
+            self.cpp_info.system_libs = ["log"]
         elif self.settings.os == "Windows":
             self.cpp_info.system_libs = ["dbghelp"]
             self.cpp_info.defines = ["GLOG_NO_ABBREVIATED_SEVERITIES"]
