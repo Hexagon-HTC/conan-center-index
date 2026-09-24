@@ -1,6 +1,7 @@
 import os
 
 from conan import ConanFile
+from conan.tools.apple import is_apple_os
 from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import copy, get, rm, rmdir, replace_in_file
@@ -117,3 +118,9 @@ class StellaCvFbowConan(ConanFile):
 
         if self.settings.os in ["Linux", "FreeBSD"]:
             self.cpp_info.system_libs.extend(["m", "pthread"])
+
+        # upstream links OpenMP::OpenMP_CXX privately, which is lost for static consumers;
+        # -fopenmp lets the compiler driver pick the runtime (libgomp/libomp) and its search path
+        if not self.options.shared and not is_apple_os(self) and self.settings.compiler in ["gcc", "clang"]:
+            self.cpp_info.sharedlinkflags.append("-fopenmp")
+            self.cpp_info.exelinkflags.append("-fopenmp")
