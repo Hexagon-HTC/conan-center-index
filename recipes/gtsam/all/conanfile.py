@@ -1,8 +1,10 @@
 from conan import ConanFile
 from conan.errors import ConanInvalidConfiguration
+from conan.tools.build import check_min_cppstd
 from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
 from conan.tools.files import apply_conandata_patches, copy, export_conandata_patches, get, replace_in_file, rmdir, save
 from conan.tools.microsoft import check_min_vs, is_msvc, msvc_runtime_flag
+from conan.tools.scm import Version
 import os
 
 required_conan_version = ">=2"
@@ -42,6 +44,7 @@ class GtsamConan(ConanFile):
         "with_TBB": [True, False],
         "with_eigen_MKL": [True, False],
         "with_eigen_MKL_OPENMP": [True, False],
+        "with_boost": [True, False],
     }
     default_options = {
         "shared": False,
@@ -65,6 +68,7 @@ class GtsamConan(ConanFile):
         "with_TBB": True,
         "with_eigen_MKL": False,
         "with_eigen_MKL_OPENMP": False,
+        "with_boost": False,
     }
     options_description = {
         "allow_deprecated": "Allow use of deprecated methods/functions",
@@ -88,14 +92,25 @@ class GtsamConan(ConanFile):
         "with_TBB": "Use Intel Threaded Building Blocks (TBB)",
         "with_eigen_MKL": "Eigen will use Intel MKL if available",
         "with_eigen_MKL_OPENMP": "Eigen, when using Intel MKL, will also use OpenMP for multithreading if available",
+        "with_boost": "Enable features that use Boost, including Boost serialization (GTSAM >= 4.3.0)",
     }
 
     def export_sources(self):
         export_conandata_patches(self)
 
+    @property
+    def _is_v43(self):
+        return Version(self.version) >= "4.3.0"
+
+    @property
+    def _with_boost(self):
+        return self.options.get_safe("with_boost", True)
+
     def config_options(self):
         if self.settings.os == "Windows":
             del self.options.fPIC
+        if not self._is_v43:
+            del self.options.with_boost
 
     def configure(self):
         if self.options.shared:
@@ -107,7 +122,8 @@ class GtsamConan(ConanFile):
         cmake_layout(self, src_folder="src")
 
     def requirements(self):
-        self.requires("boost/1.84.0", transitive_headers=True)
+        if self._with_boost:
+            self.requires("boost/1.84.0", transitive_headers=True)
         self.requires("eigen/3.4.0", transitive_headers=True)
         if self.options.with_TBB:
             self.requires("onetbb/[>=2021.10.0 <2024]", transitive_headers=True, transitive_libs=True)
@@ -120,6 +136,16 @@ class GtsamConan(ConanFile):
 
     @property
     def _required_boost_components(self):
+        if self._is_v43:
+            # https://github.com/borglab/gtsam/blob/4.3.0/cmake/HandleBoost.cmake#L48
+            return [
+                "chrono",
+                "graph",
+                "program_options",
+                "random",
+                "serialization",
+                "timer",
+            ]
         # Based on https://github.com/borglab/gtsam/blob/4.2.1/cmake/HandleBoost.cmake#L26
         return [
             "chrono",
@@ -129,16 +155,32 @@ class GtsamConan(ConanFile):
             "timer",
         ]
 
+    @property
+    def _linked_boost_components(self):
+        if self._is_v43:
+            # https://github.com/borglab/gtsam/blob/4.3.0/cmake/HandleBoost.cmake#L56-L72
+            components = ["graph", "serialization"]
+            if not self.options.disable_new_timers:
+                components.extend(["timer", "chrono"])
+            return components
+        return self._required_boost_components
+
     def validate(self):
-        miss_boost_required_comp = any(
-            self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
-            for boost_comp in self._required_boost_components
-        )
-        if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
-            raise ConanInvalidConfiguration(
-                f"{self.ref} requires non header-only boost with these components: "
-                f"{', '.join(self._required_boost_components)}"
+        if self._is_v43:
+            check_min_cppstd(self, 17)
+
+        if self._with_boost:
+            miss_boost_required_comp = any(
+                self.dependencies["boost"].options.get_safe(f"without_{boost_comp}", True)
+                for boost_comp in self._required_boost_components
             )
+            if self.dependencies["boost"].options.header_only or miss_boost_required_comp:
+                raise ConanInvalidConfiguration(
+                    f"{self.ref} requires non header-only boost with these components: "
+                    f"{', '.join(self._required_boost_components)}"
+                )
+        elif self.options.disable_new_timers:
+            raise ConanInvalidConfiguration("disable_new_timers=True requires with_boost=True")
 
         if self.options.with_TBB:
             if self.options.default_allocator in [None, "TBB"]:
@@ -151,8 +193,11 @@ class GtsamConan(ConanFile):
 
         check_min_vs(self, "191")
 
-        if is_msvc(self) and self.options.shared:
-            raise ConanInvalidConfiguration("Can't build as shared with msvc due to duplicate symbols with mscv")
+        if is_msvc(self) and self.options.shared and not self._is_v43:
+            raise ConanInvalidConfiguration(
+                f"{self.ref} does not support shared builds with MSVC. "
+                "See https://github.com/borglab/gtsam/issues/1541"
+            )
 
         if self.options.support_nested_dissection and self.dependencies["metis"].options.with_64bit_types:
             raise ConanInvalidConfiguration("GTSAM does not support METIS with 64-bit types")
@@ -179,6 +224,7 @@ class GtsamConan(ConanFile):
         tc.variables["GTSAM_ALLOW_DEPRECATED_SINCE_V4"] = self.options.allow_deprecated
         tc.variables["GTSAM_ALLOW_DEPRECATED_SINCE_V41"] = self.options.allow_deprecated
         tc.variables["GTSAM_ALLOW_DEPRECATED_SINCE_V42"] = self.options.allow_deprecated
+        tc.variables["GTSAM_ALLOW_DEPRECATED_SINCE_V43"] = self.options.allow_deprecated
         tc.variables["GTSAM_SUPPORT_NESTED_DISSECTION"] = self.options.support_nested_dissection
         tc.variables["GTSAM_TANGENT_PREINTEGRATION"] = self.options.tangent_preintegration
         tc.variables["GTSAM_SLOW_BUT_CORRECT_BETWEENFACTOR"] = self.options.slow_but_correct_betweenfactor
@@ -210,11 +256,33 @@ class GtsamConan(ConanFile):
         tc.variables["GTSAM_BUILD_DOCS"] = False
         tc.variables["GTSAM_BUILD_DOC_HTML"] = False
         tc.variables["GTSAM_BUILD_DOC_LATEX"] = False
-        tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
-        tc.variables["Boost_NO_SYSTEM_PATHS"] = True
-        tc.cache_variables["Boost_SERIALIZATION_LIBRARY"] = True
-        tc.cache_variables["Boost_FILESYSTEM_LIBRARY"] = True
-        tc.cache_variables["Boost_TIMER_LIBRARY"] = True
+        if self._with_boost:
+            tc.variables["Boost_USE_STATIC_LIBS"] = not self.dependencies["boost"].options.shared
+            tc.variables["Boost_NO_SYSTEM_PATHS"] = True
+            tc.cache_variables["Boost_SERIALIZATION_LIBRARY"] = True
+            tc.cache_variables["Boost_FILESYSTEM_LIBRARY"] = True
+            tc.cache_variables["Boost_TIMER_LIBRARY"] = True
+        if self._is_v43:
+            # https://github.com/borglab/gtsam/blob/4.3.0/CMakeLists.txt#L101-L102
+            tc.cache_variables["GTSAM_USE_BOOST_FEATURES"] = self._with_boost
+            tc.cache_variables["GTSAM_ENABLE_BOOST_SERIALIZATION"] = self._with_boost
+            # Spectra is header-only and used only privately in .cpp files; the bundled copy (1.1.x)
+            # is newer than the one available in CCI
+            # https://github.com/borglab/gtsam/blob/4.3.0/cmake/HandleSpectra.cmake
+            tc.cache_variables["GTSAM_USE_SYSTEM_SPECTRA"] = False
+            # No CCOLAMD/CHOLMOD recipes available, use the bundled CCOLAMD and disable CHOLMOD
+            # https://github.com/borglab/gtsam/blob/4.3.0/cmake/HandleSuiteSparse.cmake
+            tc.cache_variables["GTSAM_USE_SYSTEM_CCOLAMD"] = False
+            tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_CHOLMOD"] = True
+            tc.cache_variables["GTSAM_ENABLE_GEOGRAPHICLIB"] = False
+            tc.cache_variables["GTSAM_ENABLE_GPERFTOOLS"] = False
+            tc.cache_variables["GTSAM_ENABLE_CUDA"] = False
+            tc.cache_variables["GTSAM_ENABLE_ASAN"] = False
+            # Enabled by default for top-level builds; new compiler/cppstd warnings must not break the package
+            # https://github.com/borglab/gtsam/blob/4.3.0/cmake/GtsamBuildTypes.cmake#L89-L94
+            tc.cache_variables["GTSAM_BUILD_WITH_WERROR"] = False
+            tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Ceres"] = True
+            tc.cache_variables["CMAKE_DISABLE_FIND_PACKAGE_Doxygen"] = True
 
         tc.generate()
 
@@ -223,7 +291,8 @@ class GtsamConan(ConanFile):
         if self.options.support_nested_dissection:
             deps.set_property("metis", "cmake_target_name", "metis-gtsam-if")
 
-        if self.options.with_TBB:
+        if self.options.with_TBB and not self._is_v43:
+            # GTSAM >= 4.3.0 uses the TBB::tbb and TBB::tbbmalloc targets
             deps.set_property("onetbb::libtbb", "cmake_target_name", "tbb")
             deps.set_property("onetbb::tbbmalloc", "cmake_target_name", "tbbmalloc")
 
@@ -233,24 +302,24 @@ class GtsamConan(ConanFile):
         apply_conandata_patches(self)
 
         # Honor vc runtime
-        if is_msvc(self):
+        if is_msvc(self) and not self._is_v43:
             gtsam_build_types_cmake = os.path.join(self.source_folder, "cmake", "GtsamBuildTypes.cmake")
             replace_in_file(self, gtsam_build_types_cmake, "/MD ", f"/{msvc_runtime_flag(self)} ")
             replace_in_file(self, gtsam_build_types_cmake, "/MDd ", f"/{msvc_runtime_flag(self)} ")
 
-        # Ensure a newer CMake standard is used for non-cache_variables support and other policies
-        replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
-                        "cmake_minimum_required(VERSION 3.0)",
-                        "cmake_minimum_required(VERSION 3.15)")
+        if not self._is_v43:
+            # Ensure a newer CMake standard is used for non-cache_variables support and other policies
+            replace_in_file(self, os.path.join(self.source_folder, "CMakeLists.txt"),
+                            "cmake_minimum_required(VERSION 3.0)",
+                            "cmake_minimum_required(VERSION 3.15)")
 
         # Fix tcmalloc / gperftools handling
         if self.options.default_allocator == "tcmalloc":
             handle_allocators_path = os.path.join(self.source_folder, "cmake", "HandleAllocators.cmake")
             replace_in_file(self, handle_allocators_path,
-                            "if(GOOGLE",
+                            "if(GOOGLE_PERFTOOLS_FOUND)" if not self._is_v43 else "if(GPERFTOOLS_FOUND)",
                             ("find_package(gperftools REQUIRED)\n"
-                             "set(GOOGLE_PERFTOOLS_FOUND TRUE)\n"
-                             "if(GOOGLE"))
+                             "if(TRUE)"))
             replace_in_file(self, handle_allocators_path,
                             'GTSAM_ADDITIONAL_LIBRARIES "tcmalloc"',
                             'GTSAM_ADDITIONAL_LIBRARIES "gperftools::gperftools"')
@@ -287,14 +356,30 @@ class GtsamConan(ConanFile):
         gtsam = self.cpp_info.components["libgtsam"]
         gtsam.set_property("cmake_target_name", "gtsam")
         gtsam.libs = ["gtsam"]
-        gtsam.requires = [f"boost::{component}" for component in self._required_boost_components]
+        gtsam.requires = [f"boost::{component}" for component in self._linked_boost_components] if self._with_boost else []
         gtsam.requires.append("eigen::eigen")
+        if self._is_v43:
+            gtsam.requires.append("cephes")
         if self.options.with_TBB:
             gtsam.requires.extend(["onetbb::libtbb", "onetbb::tbbmalloc"])
         if self.options.default_allocator == "tcmalloc":
             gtsam.requires.append("gperftools::gperftools")
         if self.settings.os == "Windows":
             gtsam.system_libs = ["dbghelp"]
+        if is_msvc(self) and self._is_v43:
+            gtsam.defines = ["_ENABLE_EXTENDED_ALIGNED_STORAGE", "_USE_MATH_DEFINES"]
+            gtsam.cxxflags = ["/permissive-"]
+            if self.options.shared:
+                gtsam.defines.append("EIGEN_NO_STATIC_ASSERT")
+
+        if self._is_v43:
+            # Bundled cephes library
+            # https://github.com/borglab/gtsam/blob/4.3.0/cmake/HandleCephes.cmake
+            cephes = self.cpp_info.components["cephes"]
+            cephes.set_property("cmake_target_name", "cephes-gtsam")
+            cephes.libs = ["cephes-gtsam"]
+            if self.settings.os in ["Linux", "FreeBSD"]:
+                cephes.system_libs = ["m"]
 
         if self.options.build_unstable:
             gtsam_unstable = self.cpp_info.components["libgtsam_unstable"]
@@ -309,11 +394,12 @@ class GtsamConan(ConanFile):
             cppunitlite = self.cpp_info.components["gtsam_CppUnitLite"]
             cppunitlite.set_property("cmake_target_name", "CppUnitLite")
             cppunitlite.libs = ["CppUnitLite"]
-            cppunitlite.requires = ["boost::boost"]
+            if not self._is_v43:
+                cppunitlite.requires = ["boost::boost"]
 
         if is_msvc(self) and not self.options.shared:
             for component in self.cpp_info.components.values():
-                component.libs = [f"lib{lib}" for lib in component.libs if lib.startswith("gtsam")]
+                component.libs = [f"lib{lib}" if lib.startswith("gtsam") else lib for lib in component.libs]
         if self.options.build_type_postfixes and self.settings.build_type != "Release":
             for component in self.cpp_info.components.values():
                 component.libs = [f"{lib}{self.settings.build_type}" for lib in component.libs]

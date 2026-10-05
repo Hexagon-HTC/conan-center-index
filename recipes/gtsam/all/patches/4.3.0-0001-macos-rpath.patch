@@ -1,0 +1,13 @@
+--- a/gtsam/3rdparty/cephes/CMakeLists.txt
++++ b/gtsam/3rdparty/cephes/CMakeLists.txt
+@@ -60,10 +60,6 @@
+   set_target_properties(cephes-gtsam PROPERTIES COMPILE_FLAGS /w)
+ endif()
+ 
+-if(APPLE)
+-  set_target_properties(cephes-gtsam PROPERTIES INSTALL_NAME_DIR
+-                                                "${CMAKE_INSTALL_PREFIX}/lib")
+-endif()
+ 
+ install(
+   TARGETS cephes-gtsam

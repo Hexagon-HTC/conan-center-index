@@ -1,0 +1,170 @@
+--- a/gtsam/discrete/AlgebraicDecisionTree.h
++++ b/gtsam/discrete/AlgebraicDecisionTree.h
+@@ -23,6 +23,7 @@
+ #include <gtsam/discrete/Ring.h>
+ 
+ #include <iomanip>
++#include <iterator>
+ #include <limits>
+ #include <map>
+ #include <string>
+--- a/gtsam/discrete/DecisionTreeFactor.cpp
++++ b/gtsam/discrete/DecisionTreeFactor.cpp
+@@ -25,6 +25,7 @@
+ #include <gtsam/inference/Ordering.h>
+ 
+ #include <utility>
++#include <iterator>
+ 
+ using namespace std;
+ 
+--- a/gtsam/discrete/TableFactor.cpp
++++ b/gtsam/discrete/TableFactor.cpp
+@@ -24,6 +24,7 @@
+ #include <gtsam/inference/Ordering.h>
+ 
+ #include <utility>
++#include <iterator>
+ 
+ using namespace std;
+ 
+--- a/gtsam/geometry/triangulation.h
++++ b/gtsam/geometry/triangulation.h
+@@ -35,6 +35,7 @@
+ #include <gtsam/slam/TriangulationFactor.h>
+ 
+ #include <map>
++#include <iterator>
+ #include <optional>
+ #include <stdexcept>
+ 
+--- a/gtsam/hybrid/HybridFactor.cpp
++++ b/gtsam/hybrid/HybridFactor.cpp
+@@ -16,6 +16,7 @@
+  */
+ 
+ #include <gtsam/hybrid/HybridFactor.h>
++#include <iterator>
+ 
+ namespace gtsam {
+ 
+--- a/gtsam/hybrid/HybridFactorGraph.cpp
++++ b/gtsam/hybrid/HybridFactorGraph.cpp
+@@ -18,6 +18,7 @@
+  */
+ 
+ #include <gtsam/hybrid/HybridFactorGraph.h>
++#include <iterator>
+ #include <gtsam/nonlinear/NonlinearFactor.h>
+ 
+ namespace gtsam {
+--- a/gtsam/hybrid/HybridGaussianConditional.cpp
++++ b/gtsam/hybrid/HybridGaussianConditional.cpp
+@@ -30,6 +30,7 @@
+ #include <gtsam/linear/JacobianFactor.h>
+ 
+ #include <cstddef>
++#include <iterator>
+ #include <memory>
+ 
+ namespace gtsam {
+--- a/gtsam/hybrid/HybridNonlinearFactor.cpp
++++ b/gtsam/hybrid/HybridNonlinearFactor.cpp
+@@ -22,6 +22,7 @@
+ #include <gtsam/nonlinear/NonlinearFactor.h>
+ 
+ #include <memory>
++#include <iterator>
+ 
+ namespace gtsam {
+ 
+--- a/gtsam/hybrid/HybridSmoother.cpp
++++ b/gtsam/hybrid/HybridSmoother.cpp
+@@ -19,6 +19,7 @@
+ #include <gtsam/hybrid/HybridSmoother.h>
+ 
+ #include <algorithm>
++#include <iterator>
+ #include <unordered_set>
+ 
+ // #define DEBUG_SMOOTHER
+--- a/gtsam/inference/BayesTreeCliqueBase-inst.h
++++ b/gtsam/inference/BayesTreeCliqueBase-inst.h
+@@ -22,6 +22,7 @@
+ #include <gtsam/base/timing.h>
+ 
+ #include <vector>
++#include <iterator>
+ 
+ namespace gtsam {
+ 
+--- a/gtsam/inference/MetisIndex-inl.h
++++ b/gtsam/inference/MetisIndex-inl.h
+@@ -20,6 +20,7 @@
+ #include <gtsam/base/timing.h>
+ 
+ #include <map>
++#include <iterator>
+ #include <vector>
+ 
+ namespace gtsam {
+--- a/gtsam/linear/VectorValues.cpp
++++ b/gtsam/linear/VectorValues.cpp
+@@ -19,6 +19,7 @@
+ #include <gtsam/linear/VectorValues.h>
+ 
+ #include <functional>
++#include <iterator>
+ #include <utility>
+ 
+ // assert_throw needs a semicolon in Release mode.
+--- a/gtsam/nonlinear/ISAM2-impl.h
++++ b/gtsam/nonlinear/ISAM2-impl.h
+@@ -29,6 +29,7 @@
+ #include <gtsam/linear/GaussianEliminationTree.h>
+ 
+ #include <algorithm>
++#include <iterator>
+ #include <limits>
+ #include <string>
+ #include <utility>
+--- a/gtsam/nonlinear/ISAM2.cpp
++++ b/gtsam/nonlinear/ISAM2.cpp
+@@ -28,6 +28,7 @@
+ #include <gtsam/nonlinear/LinearContainerFactor.h>
+ 
+ #include <algorithm>
++#include <iterator>
+ #include <map>
+ #include <utility>
+ #include <variant>
+--- a/gtsam/nonlinear/IncrementalFixedLagSmoother.cpp
++++ b/gtsam/nonlinear/IncrementalFixedLagSmoother.cpp
+@@ -24,6 +24,7 @@
+ #include <gtsam/base/debug.h>
+ 
+ #include <stdexcept>
++#include <iterator>
+ 
+ namespace gtsam {
+ 
+--- a/gtsam/sfm/DsfTrackGenerator.cpp
++++ b/gtsam/sfm/DsfTrackGenerator.cpp
+@@ -19,6 +19,7 @@
+ #include <gtsam/sfm/DsfTrackGenerator.h>
+ 
+ #include <algorithm>
++#include <iterator>
+ #include <iostream>
+ #include <iomanip>
+ 
+--- a/gtsam_unstable/nonlinear/ConcurrentFilteringAndSmoothing.cpp
++++ b/gtsam_unstable/nonlinear/ConcurrentFilteringAndSmoothing.cpp
+@@ -20,6 +20,7 @@
+ // \callgraph
+ 
+ #include <gtsam_unstable/nonlinear/ConcurrentFilteringAndSmoothing.h>
++#include <iterator>
+ #include <gtsam/nonlinear/LinearContainerFactor.h>
+ 
+ namespace gtsam {
